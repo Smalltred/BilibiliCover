@@ -12,7 +12,7 @@ headers = {
 api = "https://api.bilibili.com/x/web-interface/view?bvid="
 
 
-def handles_url(in_url):
+def handle_url(in_url):
         regex = re.compile(r'(BV.*?)\?')
         return re.search(regex, in_url).group(1)
 
@@ -21,7 +21,7 @@ def requests_url(req_url):
     return requests.get(req_url, headers=headers)
 
 
-def handles_response():
+def handle_response():
     result = requests_url(bvurl).json()
     title = result["data"]["title"]
     img_url = result["data"]["pic"]
@@ -47,9 +47,9 @@ if __name__ == '__main__':
     path = "images"
     url = input("请输入带有Bv号的链接或者分享分享链接支持(手机): \n")
     try:
-        bvid = handles_url(url)
+        bvid = handle_url(url)
         bvurl = api + bvid
-        download_title, download_url = handles_response()
+        download_title, download_url = handle_response()
         download()
     except:
         print("错误，请检查链接是否正确")
