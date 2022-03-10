@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -- coding: utf-8 --
+# @Author : Small_tred 
+# @Time : 2022/3/10 16:40
 import requests
 import os
 import re
@@ -9,47 +11,28 @@ headers = {
                   "Chrome/91.0.4472.164 Safari/537.36",
 }
 
+
 api = "https://api.bilibili.com/x/web-interface/view?bvid="
 
+print("请输入带有BV的视频链接！")
+url = input()
 
-def handles_url(in_url):
+try:
     regex = re.compile(r'(BV.*?)\?')
-    return re.search(regex, in_url).group(1)
-
-
-def requests_url(req_url):
-    return requests.get(req_url, headers=headers)
-
-
-def handles_response():
-    result = requests_url(bvurl).json()
-    title = result["data"]["title"]
-    img_url = result["data"]["pic"]
-    print(title, img_url)
-    return title, img_url
-
-
-def createdir():
-    if os.path.exists(path):
-        download()
+    bvid = re.search(regex, url).group(1)
+    response = requests.get(api + bvid, headers=headers).json()
+    name = response["data"]["bvid"]
+    url = response["data"]["pic"]
+    download = requests.get(url, headers=headers).content
+    if os.path.exists("images"):
+        with open(os.path.join("images", name + ".jpg"), "wb") as f:
+            f.write(download)
+            print("下载完成")
     else:
-        os.mkdir(path)
-        download()
+        os.mkdir("images")
+        with open(os.path.join("images", name + ".jpg"), "wb") as f:
+            f.write(download)
+            print("下载完成")
 
-
-def download():
-    with open(os.path.join(path, download_title + ".jpg"), 'wb') as f:
-        f.write(requests_url(download_url).content)
-        print("下载成功！")
-
-
-if __name__ == '__main__':
-    path = "images"
-    url = input("请输入带有Bv号的链接或者分享链接支持手机: \n")
-    try:
-        bvid = handles_url(url)
-        bvurl = api + bvid
-        download_title, download_url = handles_response()
-        createdir()
-    except Warning:
-        print("错误，请检查链接")
+except Warning:
+    print("请输入正确的连接")
