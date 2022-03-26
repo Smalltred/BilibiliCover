@@ -269,3 +269,7 @@ def main(content):
             result = requestsSsVideoApi(ssid)
             print(f"获取成功.ss号: {ssid}")
             return handleSsResult(result, ssid)
+
+
+if __name__ == '__main__':
+    print(main("ss40156"))
