@@ -7,6 +7,21 @@ import re
 import biliBV
 
 
+def handleUrl(in_url):
+    """判断链接是否为跳转 获取真实链接"""
+    b_url = re.search(r"[a-zA-z]+://[^\s]*", in_url)
+    if b_url is not None:
+        response = requests.get(b_url.group(0), allow_redirects=False)
+        if response.status_code == 302:
+            t_url = requests.get(b_url.group(0)).url
+            return t_url
+        elif response.status_code == 301:
+            t_url = requests.get(b_url.group(0)).url
+            return t_url
+        else:
+            return b_url.group(0)
+
+
 def regexBv(true_url):
     """匹配BV号"""
     bv_id = re.search(r'(BV.*?).\w*', true_url)
@@ -38,29 +53,13 @@ def regexSs(true_url):
         return None
 
 
-def regexMed(true_url):
-    pass
+def regexMd(true_url):
     # 匹配Med号
-    # med_id = re.search(r"\d+", true_url)
-    # if med_id is not None:
-    #     return med_id.group(0)
-    # else:
-    #     return None
-
-
-def handleUrl(in_url):
-    """判断链接是否为跳转 获取真实链接"""
-    b_url = re.search(r"[a-zA-z]+://[^\s]*", in_url)
-    if b_url is not None:
-        response = requests.get(b_url.group(0), allow_redirects=False)
-        if response.status_code == 302:
-            t_url = requests.get(b_url.group(0)).url
-            return t_url
-        elif response.status_code == 301:
-            t_url = requests.get(b_url.group(0)).url
-            return t_url
-        else:
-            return b_url.group(0)
+    med_id = re.search(r"(md.*?)\d+", true_url)
+    if med_id is not None:
+        return med_id.group(0)
+    else:
+        return None
 
 
 # 请求API
@@ -80,6 +79,20 @@ def requestsEpVideoApi(epid):
 
 def requestsSsVideoApi(ssid):
     api = "https://api.bilibili.com/pgc/view/web/season?season_id="
+    response = requests.get(api + ssid).json()
+    if response["code"] == 0:
+        return response
+
+
+def requestsMdVideoApi(mdid):
+    api = "https://api.bilibili.com/pgc/review/user?media_id="
+    response = requests.get(api + mdid).json()
+    if response["code"] == 0:
+        return response
+
+
+def requestsAllVideoApi(ssid):
+    api = "https://api.bilibili.com/pgc/web/season/section?season_id="
     response = requests.get(api + ssid).json()
     if response["code"] == 0:
         return response
@@ -211,8 +224,63 @@ def handleSsResult(response_result, ssid):
             return "番剧是不是还没上线啊"
 
 
-def handleMediaResult(response_result):
-    pass
+def handleMdiaResult(response_result, mdid):
+    av = "av"
+    ls = []
+    ep_ls = []
+    ep_pv_ls = []
+    if response_result is not None:
+        ssid = response_result.get("result").get("media").get("season_id")
+        title = response_result.get("result").get("media").get("title")
+        md_cover = response_result.get("result").get("media").get("cover")
+        md_url = response_result.get("result").get("media").get("share_url")
+        if requestsAllVideoApi(str(ssid)) is not None:
+            eps_data = requestsAllVideoApi(str(ssid))
+            if eps_data.get("result").get("main_section") is not None:
+                episodes_data = eps_data.get("result").get("main_section").get("episodes")
+                episodes_pv_data = eps_data.get("result").get("section")
+                for eps_pv_data in episodes_pv_data:
+                    for ep_pv_data, i in zip(eps_pv_data.get("episodes"), range((len(eps_pv_data)))):
+                        ep_pv_title = ep_pv_data.get("long_title")
+                        if ep_pv_title == "":
+                            ep_pv_title = ep_pv_data.get("title")
+                        ep_pv_cover = ep_pv_data.get("cover")
+                        ep_pv_url = ep_pv_data.get("share_url")
+                        ep_pv_avid = ep_pv_data.get("aid")
+                        ep_pv_bvid = biliBV.encode(ep_pv_avid)
+                        ep_pv_dt = {
+                            "title": ep_pv_title,
+                            "image": ep_pv_cover,
+                            "url": ep_pv_url,
+                            "bvid": ep_pv_bvid,
+                            "avid": ep_pv_avid,
+                        }
+                        temp_1 = {i: ep_pv_dt}
+                        ep_pv_ls.append(temp_1)
+                    for ep_data, j in zip(episodes_data, range(len(episodes_data))):
+                        ep_title = ep_data.get("long_title")
+                        ep_cover = ep_data.get("cover")
+                        ep_url = ep_data.get("share_url")
+                        ep_avid = ep_data.get("aid")
+                        ep_bvid = biliBV.encode(ep_avid)
+                        ep_volume = ep_data.get("title")
+                        ep_dt = {
+                            "title": ep_title,
+                            "image": ep_cover,
+                            "url": ep_url,
+                            "bvid": ep_bvid,
+                            "avid": ep_avid,
+                            "volume": ep_volume,
+                        }
+                        temp_2 = {j: ep_dt}
+                        ep_ls.append(temp_2)
+                    data = {
+                        "ep": ep_ls,
+                        "pv": ep_pv_ls,
+                    }
+                return data
+            else:
+                return "番剧是不是还没上线啊"
 
 
 def main(content):
@@ -243,6 +311,11 @@ def main(content):
             result = requestsSsVideoApi(ssid)
             print(f"获取成功.ss号: {ssid}")
             return handleSsResult(result, ssid)
+        elif regexMd(data) is not None:
+            mdid = regexMd(data)[2:]
+            result = requestsMdVideoApi(mdid)
+            print(f"获取成功.md号: {mdid}")
+            return handleMdiaResult(result, mdid)
 
     else:
         if regexBv(content) is not None:
@@ -266,10 +339,21 @@ def main(content):
                 return handleEpisodeResult(result, epid)
         elif regexSs(content) is not None:
             ssid = regexSs(content)[2:]
-            result = requestsSsVideoApi(ssid)
-            print(f"获取成功.ss号: {ssid}")
-            return handleSsResult(result, ssid)
+            if requestsSsVideoApi(ssid) is not None:
+                result = requestsSsVideoApi(ssid)
+                print(f"获取成功.ss号: {ssid}")
+                return handleSsResult(result, ssid)
+        elif regexMd(content) is not None:
+            mdid = regexMd(content)[2:]
+            if requestsMdVideoApi(mdid) is not None:
+                result = requestsMdVideoApi(mdid)
+                print(f"获取成功.md号: {mdid}")
+                return handleMdiaResult(result, mdid)
 
 
 if __name__ == '__main__':
-    print(main("ss40156"))
+    print(main("https://www.bilibili.com/bangumi/media/md28235860/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"))
+    print(main("md28235860"))
+    print(main("https://www.bilibili.com/bangumi/media/md28237141/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"))
+    print(main("https://www.bilibili.com/bangumi/media/md28231809/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"))
+    print(main("https://www.bilibili.com/bangumi/play/ss39334?from_spmid=666.19.0.0"))
