@@ -24,7 +24,7 @@ def handleUrl(in_url):
 
 def regexBv(true_url):
     """匹配BV号"""
-    bv_id = re.search(r'(BV.*?).\w*', true_url)
+    bv_id = re.search(r'(BV.*?).{10}', true_url)
     if bv_id is not None:
         return bv_id.group(0)
 
@@ -113,12 +113,12 @@ def handleVideoBvResult(response_result, vid):
                         vd_bvid = vd.get("bvid")
                         vd_avid = vd.get("aid")
                         data = {
-                                "title": vd_title,
-                                "image": vd_cover,
-                                "bvid": vd_bvid,
-                                "avid": av + str(vd_avid),
-                                "url": bilibili + vd_bvid,
-                            }
+                            "title": vd_title,
+                            "image": vd_cover,
+                            "bvid": vd_bvid,
+                            "avid": av + str(vd_avid),
+                            "url": bilibili + vd_bvid,
+                        }
                         ls.append(data)
                     return ls
         else:
@@ -253,7 +253,7 @@ def handleMdiaResult(response_result, mdid):
                                 "image": ep_pv_cover,
                                 "url": ep_pv_url,
                                 "bvid": ep_pv_bvid,
-                                "avid": ep_pv_avid,
+                                "avid": av + str(ep_pv_avid),
                             }
                             ep_pv_ls.append(ep_pv_dt)
                         for ep_data, j in zip(episodes_data, range(len(episodes_data))):
@@ -268,7 +268,7 @@ def handleMdiaResult(response_result, mdid):
                                 "image": ep_cover,
                                 "url": ep_url,
                                 "bvid": ep_bvid,
-                                "avid": ep_avid,
+                                "avid": av + str(ep_avid),
                                 "volume": ep_volume,
                             }
 
@@ -288,7 +288,7 @@ def handleMdiaResult(response_result, mdid):
                             "image": ep_cover,
                             "url": ep_url,
                             "bvid": ep_bvid,
-                            "avid": ep_avid,
+                            "avid": av + str(ep_avid),
                             "volume": ep_volume,
                         }
                         ep_ls.append(ep_dt)
