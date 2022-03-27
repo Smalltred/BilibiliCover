@@ -107,7 +107,7 @@ def handleVideoBvResult(response_result):
         if response_result.get("data").get("ugc_season") is not None:
             if len(response_result.get("data").get("ugc_season").get("sections")) != 0:
                 for vds in response_result.get("data").get("ugc_season").get("sections"):
-                    for vd, i in zip(vds.get("episodes"), range(len(vds.get("episodes")))):
+                    for vd in vds.get("episodes"):
                         vd_title = vd.get("title")
                         vd_cover = vd.get("arc").get("pic")
                         vd_bvid = vd.get("bvid")
