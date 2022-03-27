@@ -294,7 +294,8 @@ def handleMdResult(response_result):
                     data = {"title": title, "cover": md_cover, "url": md_url, "ep": ep_ls, "pv": "", }
                     return data
             else:
-                return "番剧是不是还没上线啊"
+                data = {"title": title, "cover": md_cover, "url": md_url}
+                return data
 
 
 def main(content):
@@ -366,4 +367,4 @@ def main(content):
 
 
 if __name__ == '__main__':
-    print(main("https://www.bilibili.com/bangumi/media/md28235860/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"))
+    print(main("https://www.bilibili.com/bangumi/media/md28237141/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"))
