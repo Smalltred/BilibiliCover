@@ -295,8 +295,27 @@ def handleMdResult(response_result):
                     data = {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls, "pv": "", }
                     return data
             else:
-                data = {"title": title, "cover": md_cover, "url": md_url, "states": 0}
-                return data
+                episodes_pv_data = eps_data.get("result").get("section")
+                if len(episodes_pv_data) != 0:
+                    for eps_pv_data in episodes_pv_data:
+                        for ep_pv_data in eps_pv_data.get("episodes"):
+                            ep_pv_title = ep_pv_data.get("long_title")
+                            if ep_pv_title == "":
+                                ep_pv_title = ep_pv_data.get("title")
+                            ep_pv_cover = ep_pv_data.get("cover")
+                            ep_pv_url = ep_pv_data.get("share_url")
+                            ep_pv_avid = ep_pv_data.get("aid")
+                            ep_pv_bvid = biliBV.encode(ep_pv_avid)
+                            ep_pv_dt = {
+                                "title": ep_pv_title,
+                                "image": ep_pv_cover,
+                                "url": ep_pv_url,
+                                "bvid": ep_pv_bvid,
+                                "avid": av + str(ep_pv_avid),
+                            }
+                            ep_pv_ls.append(ep_pv_dt)
+                        data = {"title": title, "cover": md_cover, "url": md_url, "states": 0, "pv": ep_pv_ls}
+                        return data
 
 
 def main(content):
@@ -368,7 +387,7 @@ def main(content):
 
 
 if __name__ == '__main__':
-    text = "https://www.bilibili.com/bangumi/play/ss41432?from_spmid=666.14.0.0"
+    text = "https://www.bilibili.com/video/BV1wD4y1o7AS?spm_id_from=333.337"
     result = main(text)
     if isinstance(result, list):
         for i in result:
@@ -378,7 +397,11 @@ if __name__ == '__main__':
             if result.get("states") == 0:
                 print("no list, it's dict")
                 print("没上线")
-                print(result["title"], result["cover"], result["url"])
+                if result.get("pv") is not None:
+                    print("但是有pv哦")
+                    print(result["title"], result["cover"], result["url"])
+                    for i in result.get("pv"):
+                        print(i["title"], i["image"], i["bvid"], i["avid"], i["url"])
             else:
                 print("上线咯")
                 print(result["title"], result["image"], result["url"], result["bvid"], result["avid"], result["url"])
@@ -391,7 +414,7 @@ if __name__ == '__main__':
             for pv in pvs:
                 print("pv", pv["title"], pv["image"], pv["bvid"], pv["avid"], pv["url"])
     elif result == 404:
-        print("番剧好像没上线哦")
+        print("请检查是不是输错了")
 
     else:
         print("error")
