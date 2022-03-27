@@ -292,8 +292,27 @@ def handleMdResult(response_result):
                     data = {"title": title, "cover": md_cover, "url": md_url, "ep": ep_ls, "pv": "", }
                     return data
             else:
-                data = {"title": title, "cover": md_cover, "url": md_url}
-                return data
+                episodes_pv_data = eps_data.get("result").get("section")
+                if len(episodes_pv_data) != 0:
+                    for eps_pv_data in episodes_pv_data:
+                        for ep_pv_data in eps_pv_data.get("episodes"):
+                            ep_pv_title = ep_pv_data.get("long_title")
+                            if ep_pv_title == "":
+                                ep_pv_title = ep_pv_data.get("title")
+                            ep_pv_cover = ep_pv_data.get("cover")
+                            ep_pv_url = ep_pv_data.get("share_url")
+                            ep_pv_avid = ep_pv_data.get("aid")
+                            ep_pv_bvid = biliBV.encode(ep_pv_avid)
+                            ep_pv_dt = {
+                                "title": ep_pv_title,
+                                "image": ep_pv_cover,
+                                "url": ep_pv_url,
+                                "bvid": ep_pv_bvid,
+                                "avid": av + str(ep_pv_avid),
+                            }
+                            ep_pv_ls.append(ep_pv_dt)
+                        data = {"title": title, "cover": md_cover, "url": md_url, "states": 0, "pv": ep_pv_ls}
+                        return data
 
 
 def main(content):
