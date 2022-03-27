@@ -105,23 +105,22 @@ def handleVideoBvResult(response_result, vid):
     ls = []
     if response_result is not None:
         if response_result.get("data").get("ugc_season") is not None:
-            for vds in response_result.get("data").get("ugc_season").get("sections"):
-                for vd, i in zip(vds.get("episodes"), range(len(vds.get("episodes")))):
-                    vd_title = vd.get("title")
-                    vd_cover = vd.get("arc").get("pic")
-                    vd_bvid = vd.get("bvid")
-                    vd_avid = vd.get("aid")
-                    data = {
-                        i: {
-                            "title": vd_title,
-                            "image": vd_cover,
-                            "bvid": vd_bvid,
-                            "avid": av + str(vd_avid),
-                            "url": bilibili + vd_bvid,
-                        }
-                    }
-                    ls.append(data)
-                return ls
+            if len(response_result.get("data").get("ugc_season").get("sections")) != 0:
+                for vds in response_result.get("data").get("ugc_season").get("sections"):
+                    for vd, i in zip(vds.get("episodes"), range(len(vds.get("episodes")))):
+                        vd_title = vd.get("title")
+                        vd_cover = vd.get("arc").get("pic")
+                        vd_bvid = vd.get("bvid")
+                        vd_avid = vd.get("aid")
+                        data = {
+                                "title": vd_title,
+                                "image": vd_cover,
+                                "bvid": vd_bvid,
+                                "avid": av + str(vd_avid),
+                                "url": bilibili + vd_bvid,
+                            }
+                        ls.append(data)
+                    return ls
         else:
             vd_data = response_result.get("data")
             vd_title = vd_data.get("title")
@@ -256,8 +255,7 @@ def handleMdiaResult(response_result, mdid):
                                 "bvid": ep_pv_bvid,
                                 "avid": ep_pv_avid,
                             }
-                            temp_1 = {i: ep_pv_dt}
-                            ep_pv_ls.append(temp_1)
+                            ep_pv_ls.append(ep_pv_dt)
                         for ep_data, j in zip(episodes_data, range(len(episodes_data))):
                             ep_title = ep_data.get("long_title")
                             ep_cover = ep_data.get("cover")
@@ -273,9 +271,9 @@ def handleMdiaResult(response_result, mdid):
                                 "avid": ep_avid,
                                 "volume": ep_volume,
                             }
-                            temp_2 = {j: ep_dt}
-                            ep_ls.append(temp_2)
-                        data = {"ep": ep_ls,"pv": ep_pv_ls,}
+
+                            ep_ls.append(ep_dt)
+                        data = {"ep": ep_ls, "pv": ep_pv_ls, }
                     return data
                 else:
                     for ep_data, j in zip(episodes_data, range(len(episodes_data))):
@@ -293,8 +291,7 @@ def handleMdiaResult(response_result, mdid):
                             "avid": ep_avid,
                             "volume": ep_volume,
                         }
-                        temp_2 = {j: ep_dt}
-                        ep_ls.append(temp_2)
+                        ep_ls.append(ep_dt)
                     data = {"ep": ep_ls, "pv": "", }
                     return data
             else:
@@ -370,4 +367,4 @@ def main(content):
 
 
 if __name__ == '__main__':
-    print(main("https://www.bilibili.com/bangumi/media/md28224394"))
+    main()
