@@ -135,8 +135,6 @@ def handleVideoBvResult(response_result):
                 "url": bilibili + vd_bvid,
             }
             return data
-    else:
-        return "Not"
 
 
 def handleEpisodeResult(response_result, epid):
@@ -338,7 +336,7 @@ def main(content):
             if requestsBvVideoApi(bvid) is not None:
                 result = requestsBvVideoApi(bvid)
                 print(f"获取成功.bv号: {bvid}")
-                return handleVideoBvResult(result),
+                return handleVideoBvResult(result)
         elif regexAv(content) is not None:
             bvid = regexAv(content)
             if requestsBvVideoApi(bvid) is not None:
