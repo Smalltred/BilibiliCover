@@ -98,7 +98,7 @@ def requestsAllVideoApi(ssid):
         return response
 
 
-def handleVideoBvResult(response_result, vid):
+def handleVideoBvResult(response_result):
     """根据BV号 判断是否有分P 是返回全部分P的信息 否返回该视频的封面"""
     av = "av"
     bilibili = "https://www.bilibili.com/"
@@ -173,7 +173,7 @@ def handleEpisodeResult(response_result, epid):
                                         data = {
                                             "title": ep_pv_title,
                                             "image": ep_pv_cover,
-                                            "bvid": ep_pv_avid,
+                                            "bvid": ep_pv_bvid,
                                             "avid": av + str(ep_pv_avid),
                                             "url": ep_pv_url,
                                         }
@@ -190,7 +190,7 @@ def handleEpisodeResult(response_result, epid):
                         data = {
                             "title": ep_pv_title,
                             "image": ep_pv_cover,
-                            "bvid": ep_pv_avid,
+                            "bvid": ep_pv_bvid,
                             "avid": av + str(ep_pv_avid),
                             "url": ep_pv_url,
                         }
@@ -223,9 +223,8 @@ def handleSsResult(response_result, ssid):
             return "番剧是不是还没上线啊"
 
 
-def handleMdiaResult(response_result, mdid):
+def handleMdResult(response_result):
     av = "av"
-    ls = []
     ep_ls = []
     ep_pv_ls = []
     if response_result is not None:
@@ -273,8 +272,8 @@ def handleMdiaResult(response_result, mdid):
                             }
 
                             ep_ls.append(ep_dt)
-                        data = {"ep": ep_ls, "pv": ep_pv_ls, }
-                    return data
+                        data = {"title": title, "cover": md_cover, "url": md_url, "ep": ep_ls, "pv": ep_pv_ls, }
+                        return data
                 else:
                     for ep_data, j in zip(episodes_data, range(len(episodes_data))):
                         ep_title = ep_data.get("long_title")
@@ -292,7 +291,7 @@ def handleMdiaResult(response_result, mdid):
                             "volume": ep_volume,
                         }
                         ep_ls.append(ep_dt)
-                    data = {"ep": ep_ls, "pv": "", }
+                    data = {"title": title, "cover": md_cover, "url": md_url, "ep": ep_ls, "pv": "", }
                     return data
             else:
                 return "番剧是不是还没上线啊"
@@ -307,14 +306,14 @@ def main(content):
             if requestsBvVideoApi(bvid) is not None:
                 result = requestsBvVideoApi(bvid)
                 print(f"获取成功.bv号: {bvid}")
-                return handleVideoBvResult(result, bvid)
+                return handleVideoBvResult(result)
         elif regexAv(data) is not None:
             bvid = regexAv(data)
             if requestsBvVideoApi(bvid) is not None:
                 result = requestsBvVideoApi(bvid)
                 av = biliBV.decode(bvid)
                 print(f"获取成功.av号: {av}")
-                return handleVideoBvResult(result, bvid)
+                return handleVideoBvResult(result)
         elif regexEp(data) is not None:
             epid = regexEp(data)
             if requestsEpVideoApi(epid) is not None:
@@ -330,7 +329,7 @@ def main(content):
             mdid = regexMd(data)[2:]
             result = requestsMdVideoApi(mdid)
             print(f"获取成功.md号: {mdid}")
-            return handleMdiaResult(result, mdid)
+            return handleMdResult(result)
 
     else:
         if regexBv(content) is not None:
@@ -338,14 +337,14 @@ def main(content):
             if requestsBvVideoApi(bvid) is not None:
                 result = requestsBvVideoApi(bvid)
                 print(f"获取成功.bv号: {bvid}")
-                return handleVideoBvResult(result, bvid),
+                return handleVideoBvResult(result),
         elif regexAv(content) is not None:
             bvid = regexAv(content)
             if requestsBvVideoApi(bvid) is not None:
                 result = requestsBvVideoApi(bvid)
                 av = biliBV.decode(bvid)
                 print(f"获取成功.av号: {av}")
-                return handleVideoBvResult(result, bvid)
+                return handleVideoBvResult(result)
         elif regexEp(content) is not None:
             epid = regexEp(content)
             if requestsEpVideoApi(epid) is not None:
@@ -363,8 +362,8 @@ def main(content):
             if requestsMdVideoApi(mdid) is not None:
                 result = requestsMdVideoApi(mdid)
                 print(f"获取成功.md号: {mdid}")
-                return handleMdiaResult(result, mdid)
+                return handleMdResult(result)
 
 
 if __name__ == '__main__':
-    main()
+    print(main("https://www.bilibili.com/bangumi/media/md28235860/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"))
