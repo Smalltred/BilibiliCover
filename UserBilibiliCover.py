@@ -1,6 +1,10 @@
 #!/usr/bin/python
 # -- coding: utf-8 --
 # @Author : Small_tred 
+# @Time : 2022/3/28 13:11
+# !/usr/bin/python
+# -- coding: utf-8 --
+# @Author : Small_tred
 # @Time : 2022/3/25 13:54
 import requests
 import re
@@ -239,7 +243,7 @@ def handleMdResult(response_result):
                 episodes_pv_data = eps_data.get("result").get("section")
                 if len(episodes_pv_data) != 0:
                     for eps_pv_data in episodes_pv_data:
-                        for ep_pv_data, i in zip(eps_pv_data.get("episodes"), range((len(eps_pv_data)))):
+                        for ep_pv_data in eps_pv_data.get("episodes"):
                             ep_pv_title = ep_pv_data.get("long_title")
                             if ep_pv_title == "":
                                 ep_pv_title = ep_pv_data.get("title")
@@ -255,7 +259,7 @@ def handleMdResult(response_result):
                                 "avid": av + str(ep_pv_avid),
                             }
                             ep_pv_ls.append(ep_pv_dt)
-                        for ep_data, j in zip(episodes_data, range(len(episodes_data))):
+                        for ep_data in episodes_data:
                             ep_title = ep_data.get("long_title")
                             ep_cover = ep_data.get("cover")
                             ep_url = ep_data.get("share_url")
@@ -276,7 +280,7 @@ def handleMdResult(response_result):
                                 "pv": ep_pv_ls, }
                         return data
                 else:
-                    for ep_data, j in zip(episodes_data, range(len(episodes_data))):
+                    for ep_data in episodes_data:
                         ep_title = ep_data.get("long_title")
                         ep_cover = ep_data.get("cover")
                         ep_url = ep_data.get("share_url")
@@ -292,7 +296,7 @@ def handleMdResult(response_result):
                             "volume": ep_volume,
                         }
                         ep_ls.append(ep_dt)
-                    data = {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls, "pv": "", }
+                    data = {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls}
                     return data
             else:
                 episodes_pv_data = eps_data.get("result").get("section")
@@ -387,34 +391,37 @@ def main(content):
 
 
 if __name__ == '__main__':
-    text = "https://www.bilibili.com/video/BV1wD4y1o7AS?spm_id_from=333.337"
-    result = main(text)
+    bv1 = "https://www.bilibili.com/video/BV1wu411B7rA?spm_id_from=333.851.b_7265636f6d6d656e64.1"  # bv 多p
+    result = main(bv1)
+    # 视频多P
     if isinstance(result, list):
-        for i in result:
-            print(i["title"], i["image"], i["bvid"], i["avid"], i["url"])
+        for vd in result:
+            print(f"标题: {vd['title']} 封面: {vd['image']} av号: {vd['avid']} bv号: {vd['bvid']} 视频地址: {vd['url']}")
     elif isinstance(result, dict):
-        if result.get("ep") is None:
-            if result.get("states") == 0:
-                print("no list, it's dict")
-                print("没上线")
-                if result.get("pv") is not None:
-                    print("但是有pv哦")
-                    print(result["title"], result["cover"], result["url"])
-                    for i in result.get("pv"):
-                        print(i["title"], i["image"], i["bvid"], i["avid"], i["url"])
+        # states = 1 上线 states = 0 没上线
+        if result.get("states") == 1:
+            # 番剧上线了 有ep 有pv
+            if result.get("ep") is not None and result.get("pv") is not None:
+                print(f"番剧名: {result['title']} 海报: {result['cover']} 番剧地址: {result['url']}")
+                for ep in result.get("ep"):
+                    print(
+                        f"剧集: 第{ep['volume']}话 标题: {ep['title']} 封面: {ep['image']} av号: {ep['avid']} bv号: {ep['bvid']} 剧集地址: {ep['url']}")
+                for pv in result.get("pv"):
+                    print(f"标题: {pv['title']} 封面: {pv['image']} av号: {pv['avid']} bv号: {pv['bvid']} 剧集地址: {pv['url']}")
+            # 番剧上线了 有ep 没有pv
             else:
-                print("上线咯")
-                print(result["title"], result["image"], result["url"], result["bvid"], result["avid"], result["url"])
+                print(f"番剧名: {result['title']} 海报: {result['cover']} 番剧地址: {result['url']}")
+                for ep in result.get("ep"):
+                    print(
+                        f"剧集: 第{ep['volume']}话 标题: {ep['title']} 封面: {ep['image']} av号: {ep['avid']} bv号: {ep['bvid']} 剧集地址: {ep['url']}")
+        # 番剧没上线 只有pv
+        elif result.get("states") == 0:
+            print(f"番剧名: {result['title']} 海报: {result['cover']} 番剧地址: {result['url']}")
+            for pv in result.get("pv"):
+                print(f"标题: {pv['title']} 封面: {pv['image']} av号: {pv['avid']} bv号: {pv['bvid']} 剧集地址: {pv['url']}")
         else:
-            print(result["title"], result["cover"], result["url"])
-            eps = result["ep"]
-            for ep in eps:
-                print("番剧", ep["title"], ep["image"], ep["bvid"], ep["avid"], ep["url"])
-            pvs = result["pv"]
-            for pv in pvs:
-                print("pv", pv["title"], pv["image"], pv["bvid"], pv["avid"], pv["url"])
-    elif result == 404:
-        print("请检查是不是输错了")
-
+            # 视频单P
+            print(
+                f"标题: {result['title']} 封面: {result['image']} av号: {result['avid']} bv号: {result['bvid']} 视频地址: {result['url']}")
     else:
-        print("error")
+        print("请检查是否输错了呀, 注意：没上线的番 用ss链接无法获取哦")
