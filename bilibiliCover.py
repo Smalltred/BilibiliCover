@@ -237,7 +237,7 @@ def handleMdResult(response_result):
                 episodes_pv_data = eps_data.get("result").get("section")
                 if len(episodes_pv_data) != 0:
                     for eps_pv_data in episodes_pv_data:
-                        for ep_pv_data, i in zip(eps_pv_data.get("episodes"), range((len(eps_pv_data)))):
+                        for ep_pv_data in eps_pv_data.get("episodes"):
                             ep_pv_title = ep_pv_data.get("long_title")
                             if ep_pv_title == "":
                                 ep_pv_title = ep_pv_data.get("title")
@@ -253,7 +253,7 @@ def handleMdResult(response_result):
                                 "avid": av + str(ep_pv_avid),
                             }
                             ep_pv_ls.append(ep_pv_dt)
-                        for ep_data, j in zip(episodes_data, range(len(episodes_data))):
+                        for ep_data in episodes_data:
                             ep_title = ep_data.get("long_title")
                             ep_cover = ep_data.get("cover")
                             ep_url = ep_data.get("share_url")
@@ -270,10 +270,10 @@ def handleMdResult(response_result):
                             }
 
                             ep_ls.append(ep_dt)
-                        data = {"title": title, "cover": md_cover, "url": md_url, "ep": ep_ls, "pv": ep_pv_ls, }
+                        data = {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls, "pv": ep_pv_ls, }
                         return data
                 else:
-                    for ep_data, j in zip(episodes_data, range(len(episodes_data))):
+                    for ep_data in episodes_data:
                         ep_title = ep_data.get("long_title")
                         ep_cover = ep_data.get("cover")
                         ep_url = ep_data.get("share_url")
@@ -289,7 +289,7 @@ def handleMdResult(response_result):
                             "volume": ep_volume,
                         }
                         ep_ls.append(ep_dt)
-                    data = {"title": title, "cover": md_cover, "url": md_url, "ep": ep_ls, "pv": "", }
+                    data = {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls}
                     return data
             else:
                 episodes_pv_data = eps_data.get("result").get("section")
