@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Monster - {{ result.title }}</title>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta name="referrer" content="never">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+
+        .content {
+            text-align: center;
+        }
+
+        img {
+            width: 600px;
+        }
+    </style>
+</head>
+<body>
+<div class="content">
+    <p><a href="{{ result.url }}" target="_blank">{{ result.title }}</a></p>
+    <img src="{{ result.cover }}" alt="{{ result.title }}">
+    {% for pv in pvs -%}
+        <p><a href="{{ pv.url }}" target="_blank">{{ pv.title }}</a></p>
+        <p>{{ pv.bvid }} | {{ pv.avid }} | {{ pv.url }}</p>
+        <img src="{{ pv.image }}" alt="{{ pv.title }}" title="{{ pv.title }}">
+    {% endfor %}
+</div>
+</body>
+</html>

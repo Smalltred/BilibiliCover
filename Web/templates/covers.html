@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta name="referrer" content="never">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+
+        .content {
+            text-align: center;
+        }
+
+        img {
+            width: 600px;
+        }
+    </style>
+</head>
+<body>
+<div class="content">
+    {% for vd in result -%}
+        <p><a href="{{ vd.url }}" target="_blank">{{ vd.title }}</a></p>
+        <p>{{ vd.bvid }} | {{ vd.avid }}</p>
+        <img src="{{ vd.image }}" alt="{{ vd.title }}" title="{{ vd.title }}">
+    {% endfor %}
+</div>
+</body>
+</html>

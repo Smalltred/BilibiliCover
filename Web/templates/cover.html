@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Monster - {{ result.title }}</title>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta name="referrer" content="never">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+
+        .content {
+            text-align: center;
+        }
+
+        img {
+            width: 600px;
+        }
+    </style>
+</head>
+<body>
+<div class="content">
+    <p><a href="{{ result.url }}" target="_blank">{{ result.title }}</a></p>
+    <p>{{ result.bvid }} | {{ result.avid }}</p>
+    <img src="{{ result.image }}" alt="{{ result.title }}" title="{{ result.title }}">
+</div>
+</body>
+</html>
