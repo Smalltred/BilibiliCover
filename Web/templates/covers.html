@@ -5,29 +5,41 @@
     <title>Title</title>
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="referrer" content="never">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            border: 0;
-        }
-
-        .content {
-            text-align: center;
-        }
-
-        img {
-            width: 600px;
-        }
-    </style>
+    <link rel="icon" href={{ url_for("static", filename = "images/index.ico") }}>
+    <link rel="stylesheet" href={{ url_for("static", filename = "css/style.css") }}>
 </head>
 <body>
-<div class="content">
-    {% for vd in result -%}
-        <p><a href="{{ vd.url }}" target="_blank">{{ vd.title }}</a></p>
-        <p>{{ vd.bvid }} | {{ vd.avid }}</p>
-        <img src="{{ vd.image }}" alt="{{ vd.title }}" title="{{ vd.title }}">
-    {% endfor %}
+<div class="nav">
+    <div class="front">
+        <ul>
+            <li><a href="{{ url_for("index") }}">主页</a></li>
+            <li><a href="{{ url_for("index") }}">接口</a></li>
+            <li><a href="{{ url_for("index") }}">下载</a></li>
+            <li><a href="{{ url_for("index") }}">帮助</a></li>
+            <li><a href="{{ url_for("index") }}">关于</a></li>
+        </ul>
+    </div>
+</div>
+<div class="img-content">
+    <div class="img-data">
+        {% for vd in result -%}
+            <div class="img">
+                <div class="id-data">
+                    <span>BV号: {{ vd.bvid }}</span>
+                    <span><a href="{{ vd.url }}" target="_blank">《{{ vd.title }}》</a>第{{ vd.volume }}话</span>
+                    <span>AV号: {{ vd.avid }}</span>
+                </div>
+                <img src="{{ vd.image }}" alt="{{ vd.title }}" title="{{ vd.title }}">
+                <div class="button">
+                    <a href="#">下载</a>
+                    <a href="{{ vd.image }}" target="_blank">查看</a>
+                </div>
+            </div>
+        {% endfor %}
+</div>
+</div>
+<div class="footer">
+    <p>版权 © 2021 <a href="/">MyWord</a></p>
 </div>
 </body>
 </html>
