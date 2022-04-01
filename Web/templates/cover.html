@@ -7,6 +7,18 @@
     <meta name="referrer" content="never">
     <link rel="icon" href={{ url_for("static", filename = "images/index.ico") }}>
     <link rel="stylesheet" href={{ url_for("static", filename = "css/style.css") }}>
+    <script>
+        const request = new XMLHttpRequest();
+        request.open("GET", "{{ result.image }}", true);
+        request.responseType = 'blob';
+        request.onload = function () {
+            const url = window.URL.createObjectURL(request.response);
+            const a = document.getElementById("download");
+            a.href = url
+            a.download = ''
+        }
+        request.send();
+    </script>
 </head>
 <body>
 <div class="nav">
@@ -25,7 +37,7 @@
         <p><a href="{{ result.url }}" target="_blank">{{ result.title }}</a></p>
         <img src="{{ result.image }}" alt="{{ result.title }}">
         <div class="button">
-            <a href="#">下载</a>
+            <a href="" id="download">下载</a>
             <a href="{{ result.image }}" target="_blank">查看</a>
         </div>
     </div>
