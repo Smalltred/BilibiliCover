@@ -25,7 +25,7 @@ def bilibiliApi(data):
         return jsonify(result)
 
 
-@app.route("/yes", methods=["GET", "POST"])
+@app.route("/bilibili", methods=["GET", "POST"])
 def handleResult():
     if request.method == "POST":
         data = request.form.get("text")
