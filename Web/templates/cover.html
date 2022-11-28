@@ -20,31 +20,17 @@
         </ul>
     </div>
 </div>
+<div class="img-title">
+    <p><a href="{{ result.url }}" target="_blank">{{ result.title }}</a></p>
+</div>
 <div class="img-content">
-    <div class="img-title">
-        <p><a href="{{ result.url }}" target="_blank">{{ result.title }}</a></p>
-        <img src="{{ result.image }}" alt="{{ result.title }}" id="image">
-        <div class="button">
-            <a href="" id="download">下载</a>
-            <a href="{{ result.image }}" target="_blank">查看</a>
-        </div>
-    </div>
+    <img src="{{ result.image }}" title="{{ result.title }}" alt="{{ result.title }}" id="image">
 </div>
-<div class="footer">
-    <p>版权 © 2021 <a href="/">MyWord</a></p>
+<div class="button">
+    <a href="" id="download">下载</a>
+    <a href="{{ result.image }}" target="_blank">查看</a>
 </div>
-<script>
-    const request = new XMLHttpRequest();
-    const url = document.getElementById("image").src;
-    request.open("GET", url, true);
-    request.responseType = 'blob';
-    request.onload = function () {
-        const url = window.URL.createObjectURL(request.response);
-        const a = document.getElementById("download");
-        a.href = url
-        a.download = ''
-    }
-    request.send();
-</script>
+</div>
+<script type="text/javascript" src={{ url_for("static", filename = "js/download.js") }}></script>
 </body>
 </html>

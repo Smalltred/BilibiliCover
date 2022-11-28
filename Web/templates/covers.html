@@ -26,20 +26,17 @@
             <div class="img">
                 <div class="id-data">
                     <span>BV号: {{ vd.bvid }}</span>
-                    <span><a href="{{ vd.url }}" target="_blank">《{{ vd.title }}》</a>第{{ vd.volume }}话</span>
+                    <span><a href="{{ vd.url }}" target="_blank">《{{ vd.title }}》</a></span>
                     <span>AV号: {{ vd.avid }}</span>
                 </div>
-                <img src="{{ vd.image }}" alt="{{ vd.title }}" title="{{ vd.title }}">
+                <img src="{{ vd.image }}" alt="{{ vd.title }}" title="{{ vd.title }}" id="image">
                 <div class="button">
                     <a href="#">下载</a>
                     <a href="{{ vd.image }}" target="_blank">查看</a>
                 </div>
             </div>
         {% endfor %}
-</div>
-</div>
-<div class="footer">
-    <p>版权 © 2021 <a href="/">MyWord</a></p>
+    </div>
 </div>
 </body>
 </html>
