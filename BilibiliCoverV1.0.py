@@ -17,6 +17,7 @@ class BilibiliCover:
         self.content = content
         self.data = ""
 
+
     def handleData(self):
         """判断链接是否为跳转 获取真实链接"""
         try:
@@ -31,7 +32,7 @@ class BilibiliCover:
             e = None
             return e
 
-    def get_id(self):
+    def get_data(self):
         if self.handleData() is not None:
             self.data = self.handleData()
             video_id = self.matchAll()
@@ -96,7 +97,7 @@ class BilibiliCover:
         """匹配SS号"""
         try:
             regex = re.compile(r"(ss.*?)\d+", re.I)
-            ss_id = regex.search(content).group(0)
+            ss_id = regex.search(content).group(0)[2:]
             return ss_id, "ss"
         except Exception as e:
             return None
@@ -106,10 +107,34 @@ class BilibiliCover:
         """匹配Med号"""
         try:
             regex = re.compile(r"(md.*?)\d+")
-            md_id = re.search(content).group(0)
+            md_id = regex.search(content).group(0)[2:]
             return md_id, "md"
         except Exception as e:
             return None
+
+    @staticmethod
+    def get_json(api, url_id):
+        response = requests.get(api + url_id).json()
+        if response["code"] == 0:
+            return response
+
+    def requestsVideoApi(self):
+        url_id = self.get_data()[0]
+        url_type = self.get_data()[1]
+        if url_type == "bv":
+            api = "https://api.bilibili.com/x/web-interface/view?bvid="
+            return self.get_json(api, url_id)
+        elif url_type == "ep":
+            api = "https://api.bilibili.com/pgc/view/web/season?ep_id="
+            return self.get_json(api, url_id)
+        elif url_type == "ss":
+            api = "https://api.bilibili.com/pgc/view/web/season?season_id="
+            return self.get_json(api, url_id)
+        elif url_type == "md":
+            api = "https://api.bilibili.com/pgc/review/user?media_id="
+            return self.get_json(api, url_id)
+        else:
+            return "n"
 
 
 def main():
@@ -118,10 +143,16 @@ def main():
     url = "www.hecady.com/ssadasdasd"
     text = "sdfsdasda.sad561as5646"
     bv_id = "BV1QM41167tFadasdadsa"
+    wsx_ss = "https://www.bilibili.com/bangumi/play/ss43148?from_spmid=666.14.0.0"
+    sx_ss = "https://www.bilibili.com/bangumi/play/ss42652?from_spmid=666.14.0.0"
     ep_id = "https://www.bilibili.com/bangumi/play/ep567775?from_spmid=666.4.banner.3"
     bv_url = "https://www.bilibili.com/video/BV1QM41167tF/?spm_id_from=333.851.b_7265636f6d6d656e64.1"
-    cover = BilibiliCover(ep_id)
-    print(cover.get_id())
+    web_md = "https://www.bilibili.com/bangumi/media/md28339205/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"
+    web_ep = "https://www.bilibili.com/bangumi/play/ep670659?from_spmid=666.19.0.0"
+    web_md1 = "https://www.bilibili.com/bangumi/media/md28339205/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"
+    ss_vide = "https://www.bilibili.com/bangumi/play/ss28324?from_spmid=666.25.series.0&from_outer_spmid=666.14.0.0"
+    cover = BilibiliCover(ss_vide)
+    print(cover.requestsVideoApi())
 
 
 main()

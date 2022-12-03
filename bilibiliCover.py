@@ -215,6 +215,7 @@ def handleSsResult(response_result, ssid):
                                     "bvid": ep_bvid,
                                     "avid": av + str(ep_avid),
                                     "url": ep_url,
+                                    "测试": "1"
                                 }
                                 return data
         else:
@@ -384,4 +385,4 @@ def main(content):
 
 
 if __name__ == '__main__':
-    print(main("https://www.bilibili.com/bangumi/media/md28237141/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"))
+    print(main("https://www.bilibili.com/bangumi/play/ss28324?from_spmid=666.25.series.0&from_outer_spmid=666.14.0.0"))
