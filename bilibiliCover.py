@@ -2,6 +2,8 @@
 # -- coding: utf-8 --
 # @Author : Small_tred 
 # @Time : 2022/3/25 13:54
+import time
+
 import requests
 import re
 import biliBV
@@ -84,6 +86,7 @@ def requestsSsVideoApi(ssid):
         return response
 
 
+# 根据MD 获取到 season_id 的参数再请求  传入requestsAllVideoApi函数获取全部番剧信息
 def requestsMdVideoApi(mdid):
     api = "https://api.bilibili.com/pgc/review/user?media_id="
     response = requests.get(api + mdid).json()
@@ -252,6 +255,7 @@ def handleMdResult(response_result):
                                 "url": ep_pv_url,
                                 "bvid": ep_pv_bvid,
                                 "avid": av + str(ep_pv_avid),
+                                "测试": "2"
                             }
                             ep_pv_ls.append(ep_pv_dt)
                         for ep_data in episodes_data:
@@ -348,6 +352,7 @@ def main(content):
             mdid = regexMd(data)[2:]
             result = requestsMdVideoApi(mdid)
             print(f"获取成功.md号: {mdid}")
+            print("nnnn")
             return handleMdResult(result)
 
     else:
@@ -385,4 +390,10 @@ def main(content):
 
 
 if __name__ == '__main__':
-    print(main("https://www.bilibili.com/bangumi/play/ss28324?from_spmid=666.25.series.0&from_outer_spmid=666.14.0.0"))
+    start = time.time()
+    # cover = BilibiliCover(s_bv)
+    # print(cover.cover())
+    print(main("https://www.bilibili.com/bangumi/media/md28339837/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"))
+    end = time.time()
+    print(end - start)
+
