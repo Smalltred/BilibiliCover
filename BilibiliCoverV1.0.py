@@ -12,6 +12,7 @@ import time
 
 
 # noinspection PyBroadException
+
 class BilibiliCover:
 
     def __init__(self, content):
@@ -44,17 +45,21 @@ class BilibiliCover:
         ss_id = self.regexSs(string)
         md_id = self.regexMd(string)
         if bv_id:
-            return bv_id
+            id_type = "bv"
+            return bv_id, id_type
         elif av_id:
-            return av_id
+            id_type = "bv"
+            bv_id = biliBV.encode(av_id)
+            return bv_id, id_type
         elif ep_id:
-            return ep_id
+            id_type = "ep"
+            return ep_id, id_type
         elif ss_id:
-            return ss_id
+            id_type = "ss"
+            return ss_id, id_type
         elif md_id:
-            return md_id
-        else:
-            return {"code": 403}
+            id_type = "md"
+            return md_id, id_type
 
     def regexBv(self, string):
         """匹配BV号"""
@@ -70,8 +75,7 @@ class BilibiliCover:
         try:
             regex = re.compile(r"(av.*?)\d+", re.I)
             av_id = regex.search(string).group(0)[2:]
-            bv_id = biliBV.encode(av_id)
-            return bv_id
+            return av_id
         except Exception:
             return None
 
@@ -102,10 +106,9 @@ class BilibiliCover:
         except Exception as e:
             return None
 
-    def handleBvResult(self):
+    def handleBvResult(self, bv_id):
         """根据BV号 判断是否有分P 是返回全部分P的信息 否返回该视频的封面"""
         data = []
-        bv_id = self.get_video_id()
         result = requests.get(self.bv_api + bv_id).json()
         # 多p判断
         if result.get("data").get("ugc_season") is not None:
@@ -141,13 +144,12 @@ class BilibiliCover:
             }
             return data
 
-    def handleEpResult(self):
+    def handleEpResult(self, ep_id):
 
         """
         1.判断请求内容是否存在
         2.判断番剧是否上线  是 继续判断是(pv或小剧场)还是番剧 否 判断是否为(pv或小剧场)"""
 
-        ep_id = self.get_video_id()
         result = requests.get(self.ep_api + ep_id).json()
         # 判断番剧是否上线 0 没上线 1 上线
         if len(result.get("result").get("episodes")) != 0:
@@ -186,8 +188,7 @@ class BilibiliCover:
                         }
                         return data
 
-    def handleSsResult(self):
-        ss_id = self.get_video_id()
+    def handleSsResult(self, ss_id):
         result = requests.get(self.ss_api + ss_id).json()
         # 上线了则
         if len(result.get("result").get("episodes")) != 0:
@@ -207,7 +208,6 @@ class BilibiliCover:
                                     "bvid": ep_bvid,
                                     "avid": self.av + str(ep_avid),
                                     "url": ep_url,
-                                    "测试": "1"
                                 }
                                 return data
         # 没上线则
@@ -229,10 +229,9 @@ class BilibiliCover:
                         }
                         return data
 
-    def handleMdResult(self):
+    def handleMdResult(self, md_id):
         ep_ls = []
         ep_pv_ls = []
-        md_id = self.get_video_id()
         result = requests.get(self.md_api + md_id).json()
         ssid = result.get("result").get("media").get("season_id")
         title = result.get("result").get("media").get("title")
@@ -258,7 +257,6 @@ class BilibiliCover:
                             "url": ep_pv_url,
                             "bvid": ep_pv_bvid,
                             "avid": self.av + str(ep_pv_avid),
-                            "测试": "2"
                         }
                         ep_pv_ls.append(ep_pv_dt)
                     for ep_data in episodes_data:
@@ -323,36 +321,26 @@ class BilibiliCover:
                     data = {"title": title, "cover": md_cover, "url": md_url, "states": 0, "pv": ep_pv_ls}
                     return data
 
-
-def mian():
-    a = "BV1nx411w7rp"
-    av = "av216845"
-    d_bv = "https://www.bilibili.com/video/BV1DP4y197WS/?spm_id_from=333.851.b_7265636f6d6d656e64.2"
-    s_bv = "https://www.bilibili.com/video/BV1K24y1k7XA/?spm_id_from=333.851.b_7265636f6d6d656e64.3"
-    url = "www.hecady.com/ssadasdasd"
-    text = "sdfsdasda.sad561as5646"
-    bv_id = "BV1QM41167tFadasdadsa"
-    wsx_ss = "https://www.bilibili.com/bangumi/play/ss43148?from_spmid=666.14.0.0"
-    wsx_ep = "https://www.bilibili.com/bangumi/play/ep680471"
-    sx_ss = "https://www.bilibili.com/bangumi/play/ss42652?from_spmid=666.14.0.0"
-    ep_id = "https://www.bilibili.com/bangumi/play/ep567775?from_spmid=666.4.banner.3"
-    web_md = "https://www.bilibili.com/bangumi/media/md28339205/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"
-    web_ep = "https://www.bilibili.com/bangumi/play/ep670659?from_spmid=666.19.0.0"
-    web_md1 = "https://www.bilibili.com/bangumi/media/md28339205/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"
-    ss_vide = "https://www.bilibili.com/bangumi/play/ss28324?from_spmid=666.25.series.0&from_outer_spmid=666.14.0.0"
-    re0_ep = "https://www.bilibili.com/bangumi/play/ep330798?from_spmid=666.25.episode.0&from_outer_spmid=333.337.0.0"
-    pv_ep = "https://www.bilibili.com/bangumi/play/ep480970?from_spmid=666.25.titbit.0&from_outer_spmid=666.4.banner.1"
-    dianyin_ep = "https://www.bilibili.com/bangumi/play/ep514384?from_spmid=666.19.0.0"
-    pv_md = "https://www.bilibili.com/bangumi/media/md28339716/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"
-
-    start = time.time()
-    cover = BilibiliCover(pv_md)
-    # print(cover.get_video_id())
-    # print(cover.handleEpisodeResult())
-    # print(cover.handleEpisodeResult())
-    print(cover.handleMdResult())
-    end = time.time()
-    print(end - start)
+    def get_cover(self):
+        try:
+            video_id, id_type = self.get_video_id()
+            if id_type == "bv":
+                return self.handleBvResult(video_id)
+            elif id_type == "ss":
+                return self.handleSsResult(video_id)
+            elif id_type == "ep":
+                return self.handleEpResult(video_id)
+            elif id_type == "md":
+                return self.handleMdResult(video_id)
+            else:
+                return "错误"
+        except Exception as e:
+            return {"code": "403", "error": "参数不合法"}
 
 
-mian()
+start = time.time()
+# 入口
+test = BilibiliCover("https://www.bilibili.com/video/BV1RP4y1X7KY/?spm_id_from=333.851.b_7265636f6d6d656e64.5")
+print(test.get_cover())
+end = time.time()
+print("时间", end - start)
