@@ -1,128 +1,135 @@
-#!/usr/bin/python
-# -- coding: utf-8 --
-# @Author : Small_tred 
-# @Time : 2022/3/25 13:54
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# @Time    : 2022/12/3 15:22
+# @Author  : Small tred
+# @FileName: BilibiliCoverV1.0.py
+# @Software: PyCharm
+# @Blog    ：https://www.hecady.com
 import requests
 import re
 import biliBV
+import time
 
 
-def handleUrl(in_url):
-    """判断链接是否为跳转 获取真实链接"""
-    b_url = re.search(r"[a-zA-z]+://[^\s]*", in_url)
-    if b_url is not None:
-        response = requests.get(b_url.group(0), allow_redirects=False)
-        if response.status_code == 302:
-            t_url = requests.get(b_url.group(0)).url
-            return t_url
-        elif response.status_code == 301:
-            t_url = requests.get(b_url.group(0)).url
-            return t_url
+# noinspection PyBroadException
+
+class BilibiliCover:
+
+    def __init__(self, content):
+        self.content = content
+        self.bv_api = "https://api.bilibili.com/x/web-interface/view?bvid="
+        self.ep_api = "https://api.bilibili.com/pgc/view/web/season?ep_id="
+        self.ss_api = "https://api.bilibili.com/pgc/view/web/season?season_id="
+        self.md_api = "https://api.bilibili.com/pgc/review/user?media_id="
+        self.md_all_api = "https://api.bilibili.com/pgc/web/season/section?season_id="
+        self.url = "https://www.bilibili.com/"
+        self.av = "av"
+
+    def get_video_id(self):
+        """匹配文本中的链接 判断链接是否重定向 获取重定向后的链接"""
+        try:
+            b_url = re.search(r"[a-zA-z]+://[^\s]*", self.content).group(0)
+            response = requests.get(b_url)
+            if response.status_code == 302:
+                real_url = requests.get(b_url, allow_redirects=False).url
+                return self.regexId(real_url)
+            else:
+                return self.regexId(b_url)
+        except Exception as e:
+            return self.regexId(self.content)
+
+    def regexId(self, string):
+        bv_id = self.regexBv(string)
+        av_id = self.regexAv(string)
+        ep_id = self.regexEp(string)
+        ss_id = self.regexSs(string)
+        md_id = self.regexMd(string)
+        if bv_id:
+            id_type = "bv"
+            return bv_id, id_type
+        elif av_id:
+            id_type = "bv"
+            bv_id = biliBV.encode(av_id)
+            return bv_id, id_type
+        elif ep_id:
+            id_type = "ep"
+            return ep_id, id_type
+        elif ss_id:
+            id_type = "ss"
+            return ss_id, id_type
+        elif md_id:
+            id_type = "md"
+            return md_id, id_type
+
+    def regexBv(self, string):
+        """匹配BV号"""
+        try:
+            regex = re.compile(r'(BV.*?).{10}', re.I)
+            bv_id = regex.search(string).group(0)
+            return bv_id
+        except Exception as e:
+            return None
+
+    def regexAv(self, string):
+        """匹配av号"""
+        try:
+            regex = re.compile(r"(av.*?)\d+", re.I)
+            av_id = regex.search(string).group(0)[2:]
+            return av_id
+        except Exception:
+            return None
+
+    def regexEp(self, string):
+        """匹配ep号"""
+        try:
+            regex = re.compile(r"(ep.*?)\d+", re.I)
+            ep_id = regex.search(string).group(0)[2:]
+            return ep_id
+        except Exception as e:
+            return None
+
+    def regexSs(self, string):
+        """匹配SS号"""
+        try:
+            regex = re.compile(r"(ss.*?)\d+", re.I)
+            ss_id = regex.search(string).group(0)[2:]
+            return ss_id
+        except Exception as e:
+            return None
+
+    def regexMd(self, string):
+        """匹配Med号"""
+        try:
+            regex = re.compile(r"(md.*?)\d+")
+            md_id = regex.search(string).group(0)[2:]
+            return md_id
+        except Exception as e:
+            return None
+
+    def handleBvResult(self, bv_id):
+        """根据BV号 判断是否有分P 是返回全部分P的信息 否返回该视频的封面"""
+        data = []
+        result = requests.get(self.bv_api + bv_id).json()
+        # 多p判断
+        if result.get("data").get("ugc_season") is not None:
+            for vds in result.get("data").get("ugc_season").get("sections"):
+                for vd in vds.get("episodes"):
+                    vd_title = vd.get("title")
+                    vd_cover = vd.get("arc").get("pic")
+                    vd_bvid = vd.get("bvid")
+                    vd_avid = self.av + str(vd.get("aid"))
+                    temp = {
+                        "title": vd_title,
+                        "image": vd_cover,
+                        "bvid": vd_bvid,
+                        "avid": vd_avid,
+                        "url": self.url + vd_bvid,
+                    }
+                    data.append(temp)
+                return data
+        # 单p判断
         else:
-            return b_url.group(0)
-
-
-def regexBv(true_url):
-    """匹配BV号"""
-    bv_id = re.search(r'(BV.*?).{10}', true_url)
-    if bv_id is not None:
-        return bv_id.group(0)
-
-
-def regexAv(true_url):
-    """匹配av号"""
-    av_id = re.search(r"(av.*?)\d+", true_url)
-    if av_id is not None:
-        bv_id = biliBV.encode(av_id.group(0))
-        return bv_id
-
-
-def regexEp(true_url):
-    """匹配ep号"""
-    ep_id = re.search(r"(ep.*?)\d+", true_url)
-    if ep_id is not None:
-        return ep_id.group(0)[2:]
-
-
-def regexSs(true_url):
-    """匹配SS号"""
-    ss_id = re.search(r"(ss.*?)\d+", true_url)
-    if ss_id is not None:
-        return ss_id.group(0)
-    else:
-        return None
-
-
-def regexMd(true_url):
-    """匹配Med号"""
-    med_id = re.search(r"(md.*?)\d+", true_url)
-    if med_id is not None:
-        return med_id.group(0)
-    else:
-        return None
-
-
-# 请求API
-def requestsBvVideoApi(bvid):
-    api = "https://api.bilibili.com/x/web-interface/view?bvid="
-    response = requests.get(api + bvid).json()
-    if response["code"] == 0:
-        return response
-
-
-def requestsEpVideoApi(epid):
-    api = "https://api.bilibili.com/pgc/view/web/season?ep_id="
-    response = requests.get(api + epid).json()
-    if response["code"] == 0:
-        return response
-
-
-def requestsSsVideoApi(ssid):
-    api = "https://api.bilibili.com/pgc/view/web/season?season_id="
-    response = requests.get(api + ssid).json()
-    if response["code"] == 0:
-        return response
-
-
-def requestsMdVideoApi(mdid):
-    api = "https://api.bilibili.com/pgc/review/user?media_id="
-    response = requests.get(api + mdid).json()
-    if response["code"] == 0:
-        return response
-
-
-def requestsAllVideoApi(ssid):
-    api = "https://api.bilibili.com/pgc/web/season/section?season_id="
-    response = requests.get(api + ssid).json()
-    if response["code"] == 0:
-        return response
-
-
-def handleVideoBvResult(response_result):
-    """根据BV号 判断是否有分P 是返回全部分P的信息 否返回该视频的封面"""
-    av = "av"
-    bilibili = "https://www.bilibili.com/"
-    ls = []
-    if response_result is not None:
-        if response_result.get("data").get("ugc_season") is not None:
-            if len(response_result.get("data").get("ugc_season").get("sections")) != 0:
-                for vds in response_result.get("data").get("ugc_season").get("sections"):
-                    for vd in vds.get("episodes"):
-                        vd_title = vd.get("title")
-                        vd_cover = vd.get("arc").get("pic")
-                        vd_bvid = vd.get("bvid")
-                        vd_avid = vd.get("aid")
-                        data = {
-                            "title": vd_title,
-                            "image": vd_cover,
-                            "bvid": vd_bvid,
-                            "avid": av + str(vd_avid),
-                            "url": bilibili + vd_bvid,
-                        }
-                        ls.append(data)
-                    return ls
-        else:
-            vd_data = response_result.get("data")
+            vd_data = result.get("data")
             vd_title = vd_data.get("title")
             vd_cover = vd_data.get("pic")
             vd_bvid = vd_data.get("bvid")
@@ -131,19 +138,23 @@ def handleVideoBvResult(response_result):
                 "title": vd_title,
                 "image": vd_cover,
                 "bvid": vd_bvid,
-                "avid": av + str(vd_avid),
-                "url": bilibili + vd_bvid,
+                "avid": self.av + str(vd_avid),
+                "url": self.url + vd_bvid,
             }
             return data
 
+    def handleEpResult(self, ep_id):
 
-def handleEpisodeResult(response_result, epid):
-    """1.判断请求内容是否存在 2.判断番剧是否上线  是继续判断是pv/小剧场还是番剧 否 判断是否为pv/小剧场"""
-    av = "av"
-    if response_result is not None:
-        if len(response_result.get("result").get("episodes")) != 0:
-            for eps in response_result.get("result").get("episodes"):
-                if eps.get("id") == int(epid):
+        """
+        1.判断请求内容是否存在
+        2.判断番剧是否上线  是 继续判断是(pv或小剧场)还是番剧 否 判断是否为(pv或小剧场)"""
+
+        result = requests.get(self.ep_api + ep_id).json()
+        # 判断番剧是否上线 0 没上线 1 上线
+        if len(result.get("result").get("episodes")) != 0:
+            for eps in result.get("result").get("episodes"):
+                # 判断是番剧封面还是PV封面
+                if eps.get("id") == int(ep_id):
                     ep_title = eps.get("share_copy")
                     ep_cover = eps.get("cover")
                     ep_bvid = eps.get("bvid")
@@ -153,33 +164,15 @@ def handleEpisodeResult(response_result, epid):
                         "title": ep_title,
                         "image": ep_cover,
                         "bvid": ep_bvid,
-                        "avid": av + str(ep_avid),
+                        "avid": self.av + str(ep_avid),
                         "url": ep_url,
                     }
                     return data
-                else:
-                    if response_result.get("result").get("section") is not None:
-                        if len(response_result.get("result").get("section")) != 0:
-                            for pvs in response_result.get("result").get("section"):
-                                for pv in (pvs.get("episodes")):
-                                    if pv.get("id") == int(epid):
-                                        ep_pv_title = pv.get("share_copy")
-                                        ep_pv_cover = pv.get("cover")
-                                        ep_pv_bvid = pv.get("bvid")
-                                        ep_pv_avid = pv.get("aid")
-                                        ep_pv_url = pv.get("share_url")
-                                        data = {
-                                            "title": ep_pv_title,
-                                            "image": ep_pv_cover,
-                                            "bvid": ep_pv_bvid,
-                                            "avid": av + str(ep_pv_avid),
-                                            "url": ep_pv_url,
-                                        }
-                                        return data
+        # 判断是番剧封面还是PV封面
         else:
-            for pvs in response_result.get("result").get("section"):
-                for pv in pvs.get("episodes"):
-                    if pv.get("id") == int(epid):
+            for pvs in result.get("result").get("section"):
+                for pv in (pvs.get("episodes")):
+                    if pv.get("id") == int(ep_id):
                         ep_pv_title = pv.get("share_copy")
                         ep_pv_cover = pv.get("cover")
                         ep_pv_bvid = pv.get("bvid")
@@ -189,21 +182,20 @@ def handleEpisodeResult(response_result, epid):
                             "title": ep_pv_title,
                             "image": ep_pv_cover,
                             "bvid": ep_pv_bvid,
-                            "avid": av + str(ep_pv_avid),
+                            "avid": self.av + str(ep_pv_avid),
                             "url": ep_pv_url,
                         }
                         return data
 
-
-def handleSsResult(response_result, ssid):
-    av = "av"
-    if response_result is not None:
-        if len(response_result.get("result").get("episodes")) != 0:
-            if len(response_result.get("result").get("seasons")) != 0:
-                for sss in response_result.get("result").get("seasons"):
-                    if sss.get("season_id") == int(ssid):
-                        for eps in response_result.get("result").get("episodes"):
-                            if sss.get("new_ep").get("id") == eps.get("id"):
+    def handleSsResult(self, ss_id):
+        result = requests.get(self.ss_api + ss_id).json()
+        # 上线了则
+        if len(result.get("result").get("episodes")) != 0:
+            if result.get("result").get("seasons") is not None:
+                for ss in result.get("result").get("seasons"):
+                    if ss.get("season_id") == int(ss_id):
+                        for eps in result.get("result").get("episodes"):
+                            if ss.get("new_ep").get("id") == eps.get("id"):
                                 ep_title = eps.get("share_copy")
                                 ep_cover = eps.get("cover")
                                 ep_bvid = eps.get("bvid")
@@ -213,66 +205,59 @@ def handleSsResult(response_result, ssid):
                                     "title": ep_title,
                                     "image": ep_cover,
                                     "bvid": ep_bvid,
-                                    "avid": av + str(ep_avid),
+                                    "avid": self.av + str(ep_avid),
                                     "url": ep_url,
                                 }
                                 return data
+        # 没上线则
         else:
-            return "番剧是不是还没上线啊"
-
-
-def handleMdResult(response_result):
-    av = "av"
-    ep_ls = []
-    ep_pv_ls = []
-    if response_result is not None:
-        ssid = response_result.get("result").get("media").get("season_id")
-        title = response_result.get("result").get("media").get("title")
-        md_cover = response_result.get("result").get("media").get("cover")
-        md_url = response_result.get("result").get("media").get("share_url")
-        if requestsAllVideoApi(str(ssid)) is not None:
-            eps_data = requestsAllVideoApi(str(ssid))
-            if eps_data.get("result").get("main_section") is not None:
-                episodes_data = eps_data.get("result").get("main_section").get("episodes")
-                episodes_pv_data = eps_data.get("result").get("section")
-                if len(episodes_pv_data) != 0:
-                    for eps_pv_data in episodes_pv_data:
-                        for ep_pv_data in eps_pv_data.get("episodes"):
-                            ep_pv_title = ep_pv_data.get("long_title")
-                            if ep_pv_title == "":
-                                ep_pv_title = ep_pv_data.get("title")
-                            ep_pv_cover = ep_pv_data.get("cover")
-                            ep_pv_url = ep_pv_data.get("share_url")
-                            ep_pv_avid = ep_pv_data.get("aid")
-                            ep_pv_bvid = biliBV.encode(ep_pv_avid)
-                            ep_pv_dt = {
-                                "title": ep_pv_title,
-                                "image": ep_pv_cover,
-                                "url": ep_pv_url,
-                                "bvid": ep_pv_bvid,
-                                "avid": av + str(ep_pv_avid),
-                            }
-                            ep_pv_ls.append(ep_pv_dt)
-                        for ep_data in episodes_data:
-                            ep_title = ep_data.get("long_title")
-                            ep_cover = ep_data.get("cover")
-                            ep_url = ep_data.get("share_url")
-                            ep_avid = ep_data.get("aid")
-                            ep_bvid = biliBV.encode(ep_avid)
-                            ep_volume = ep_data.get("title")
-                            ep_dt = {
-                                "title": ep_title,
-                                "image": ep_cover,
-                                "url": ep_url,
-                                "bvid": ep_bvid,
-                                "avid": av + str(ep_avid),
-                                "volume": ep_volume,
-                            }
-
-                            ep_ls.append(ep_dt)
-                        data = {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls, "pv": ep_pv_ls, }
+            if len(result.get("result").get("section")) != 0:
+                for pvs in result.get("result").get("section"):
+                    for pv in (pvs.get("episodes")):
+                        ep_title = pv.get("share_copy")
+                        ep_cover = pv.get("cover")
+                        ep_bvid = pv.get("bvid")
+                        ep_avid = pv.get("aid")
+                        ep_url = pv.get("share_url")
+                        data = {
+                            "title": ep_title,
+                            "image": ep_cover,
+                            "bvid": ep_bvid,
+                            "avid": self.av + str(ep_avid),
+                            "url": ep_url,
+                        }
                         return data
-                else:
+
+    def handleMdResult(self, md_id):
+        ep_ls = []
+        ep_pv_ls = []
+        result = requests.get(self.md_api + md_id).json()
+        ssid = result.get("result").get("media").get("season_id")
+        title = result.get("result").get("media").get("title")
+        md_cover = result.get("result").get("media").get("cover")
+        md_url = result.get("result").get("media").get("share_url")
+        eps_data = requests.get(self.md_all_api + str(ssid)).json()
+        if eps_data.get("result").get("main_section") is not None:
+            episodes_data = eps_data.get("result").get("main_section").get("episodes")
+            episodes_pv_data = eps_data.get("result").get("section")
+            if len(episodes_pv_data) != 0:
+                for eps_pv_data in episodes_pv_data:
+                    for ep_pv_data in eps_pv_data.get("episodes"):
+                        ep_pv_title = ep_pv_data.get("long_title")
+                        if ep_pv_title == "":
+                            ep_pv_title = ep_pv_data.get("title")
+                        ep_pv_cover = ep_pv_data.get("cover")
+                        ep_pv_url = ep_pv_data.get("share_url")
+                        ep_pv_avid = ep_pv_data.get("aid")
+                        ep_pv_bvid = biliBV.encode(ep_pv_avid)
+                        ep_pv_dt = {
+                            "title": ep_pv_title,
+                            "image": ep_pv_cover,
+                            "url": ep_pv_url,
+                            "bvid": ep_pv_bvid,
+                            "avid": self.av + str(ep_pv_avid),
+                        }
+                        ep_pv_ls.append(ep_pv_dt)
                     for ep_data in episodes_data:
                         ep_title = ep_data.get("long_title")
                         ep_cover = ep_data.get("cover")
@@ -285,103 +270,109 @@ def handleMdResult(response_result):
                             "image": ep_cover,
                             "url": ep_url,
                             "bvid": ep_bvid,
-                            "avid": av + str(ep_avid),
+                            "avid": self.av + str(ep_avid),
                             "volume": ep_volume,
                         }
+
                         ep_ls.append(ep_dt)
-                    data = {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls}
+                    data = {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls,
+                            "pv": ep_pv_ls, }
                     return data
             else:
-                episodes_pv_data = eps_data.get("result").get("section")
-                if len(episodes_pv_data) != 0:
-                    for eps_pv_data in episodes_pv_data:
-                        for ep_pv_data in eps_pv_data.get("episodes"):
-                            ep_pv_title = ep_pv_data.get("long_title")
-                            if ep_pv_title == "":
-                                ep_pv_title = ep_pv_data.get("title")
-                            ep_pv_cover = ep_pv_data.get("cover")
-                            ep_pv_url = ep_pv_data.get("share_url")
-                            ep_pv_avid = ep_pv_data.get("aid")
-                            ep_pv_bvid = biliBV.encode(ep_pv_avid)
-                            ep_pv_dt = {
-                                "title": ep_pv_title,
-                                "image": ep_pv_cover,
-                                "url": ep_pv_url,
-                                "bvid": ep_pv_bvid,
-                                "avid": av + str(ep_pv_avid),
-                            }
-                            ep_pv_ls.append(ep_pv_dt)
-                        data = {"title": title, "cover": md_cover, "url": md_url, "states": 0, "pv": ep_pv_ls}
-                        return data
+                for ep_data in episodes_data:
+                    ep_title = ep_data.get("long_title")
+                    ep_cover = ep_data.get("cover")
+                    ep_url = ep_data.get("share_url")
+                    ep_avid = ep_data.get("aid")
+                    ep_bvid = biliBV.encode(ep_avid)
+                    ep_volume = ep_data.get("title")
+                    ep_dt = {
+                        "title": ep_title,
+                        "image": ep_cover,
+                        "url": ep_url,
+                        "bvid": ep_bvid,
+                        "avid": self.av + str(ep_avid),
+                        "volume": ep_volume,
+                    }
+                    ep_ls.append(ep_dt)
+                data = {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls}
+                return data
+        else:
+            episodes_pv_data = eps_data.get("result").get("section")
+            if len(episodes_pv_data) != 0:
+                for eps_pv_data in episodes_pv_data:
+                    for ep_pv_data in eps_pv_data.get("episodes"):
+                        ep_pv_title = ep_pv_data.get("long_title")
+                        if ep_pv_title == "":
+                            ep_pv_title = ep_pv_data.get("title")
+                        ep_pv_cover = ep_pv_data.get("cover")
+                        ep_pv_url = ep_pv_data.get("share_url")
+                        ep_pv_avid = ep_pv_data.get("aid")
+                        ep_pv_bvid = biliBV.encode(ep_pv_avid)
+                        ep_pv_dt = {
+                            "title": ep_pv_title,
+                            "image": ep_pv_cover,
+                            "url": ep_pv_url,
+                            "bvid": ep_pv_bvid,
+                            "avid": self.av + str(ep_pv_avid),
+                        }
+                        ep_pv_ls.append(ep_pv_dt)
+                    data = {"title": title, "cover": md_cover, "url": md_url, "states": 0, "pv": ep_pv_ls}
+                    return data
 
-
-def main(content):
-    """入口"""
-    data = handleUrl(content)
-    if data is not None:
-        if regexBv(data) is not None:
-            bvid = regexBv(data)
-            if requestsBvVideoApi(bvid) is not None:
-                result = requestsBvVideoApi(bvid)
-                print(f"获取成功.bv号: {bvid}")
-                return handleVideoBvResult(result)
-        elif regexAv(data) is not None:
-            bvid = regexAv(data)
-            if requestsBvVideoApi(bvid) is not None:
-                result = requestsBvVideoApi(bvid)
-                av = biliBV.decode(bvid)
-                print(f"获取成功.av号: {av}")
-                return handleVideoBvResult(result)
-        elif regexEp(data) is not None:
-            epid = regexEp(data)
-            if requestsEpVideoApi(epid) is not None:
-                result = requestsEpVideoApi(epid)
-                print(f"获取成功.ep号: {epid}")
-                return handleEpisodeResult(result, epid)
-        elif regexSs(data) is not None:
-            ssid = regexSs(data)[2:]
-            result = requestsSsVideoApi(ssid)
-            print(f"获取成功.ss号: {ssid}")
-            return handleSsResult(result, ssid)
-        elif regexMd(data) is not None:
-            mdid = regexMd(data)[2:]
-            result = requestsMdVideoApi(mdid)
-            print(f"获取成功.md号: {mdid}")
-            return handleMdResult(result)
-
-    else:
-        if regexBv(content) is not None:
-            bvid = regexBv(content)
-            if requestsBvVideoApi(bvid) is not None:
-                result = requestsBvVideoApi(bvid)
-                print(f"获取成功.bv号: {bvid}")
-                return handleVideoBvResult(result)
-        elif regexAv(content) is not None:
-            bvid = regexAv(content)
-            if requestsBvVideoApi(bvid) is not None:
-                result = requestsBvVideoApi(bvid)
-                av = biliBV.decode(bvid)
-                print(f"获取成功.av号: {av}")
-                return handleVideoBvResult(result)
-        elif regexEp(content) is not None:
-            epid = regexEp(content)
-            if requestsEpVideoApi(epid) is not None:
-                result = requestsEpVideoApi(epid)
-                print(f"获取成功.ep号: {epid}")
-                return handleEpisodeResult(result, epid)
-        elif regexSs(content) is not None:
-            ssid = regexSs(content)[2:]
-            if requestsSsVideoApi(ssid) is not None:
-                result = requestsSsVideoApi(ssid)
-                print(f"获取成功.ss号: {ssid}")
-                return handleSsResult(result, ssid)
-        elif regexMd(content) is not None:
-            mdid = regexMd(content)[2:]
-            if requestsMdVideoApi(mdid) is not None:
-                result = requestsMdVideoApi(mdid)
-                print(f"获取成功.md号: {mdid}")
-                return handleMdResult(result)
+    def get_cover(self):
+        try:
+            video_id, id_type = self.get_video_id()
+            if id_type == "bv":
+                return self.handleBvResult(video_id)
+            elif id_type == "ss":
+                return self.handleSsResult(video_id)
+            elif id_type == "ep":
+                return self.handleEpResult(video_id)
+            elif id_type == "md":
+                return self.handleMdResult(video_id)
+            else:
+                return "错误"
+        except Exception as e:
+            return {"code": "403", "error": "参数不合法"}
 
 
 if __name__ == '__main__':
-    print(main("https://www.bilibili.com/bangumi/media/md28237141/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2"))
+    start = time.time()
+    # 入口
+    test = BilibiliCover("https://www.bilibili.com/bangumi/play/ss43148?from_spmid=666.14.0.0")
+    result = test.get_cover()
+    if isinstance(result, list):
+        for vd in result:
+            print(f"标题: {vd['title']} 封面: {vd['image']} av号: {vd['avid']} bv号: {vd['bvid']} 视频地址: {vd['url']}")
+    elif isinstance(result, dict):
+        # states = 1 上线 states = 0 没上线
+        if result.get("states") == 1:
+            # 番剧上线了 有ep 有pv
+            if result.get("ep") is not None and result.get("pv") is not None:
+                print(f"番剧名: {result['title']} 海报: {result['cover']} 番剧地址: {result['url']}")
+                for ep in result.get("ep"):
+                    print(
+                        f"剧集: 第{ep['volume']}话 标题: {ep['title']} 封面: {ep['image']} av号: {ep['avid']} bv号: {ep['bvid']} 剧集地址: {ep['url']}")
+                for pv in result.get("pv"):
+                    print(f"标题: {pv['title']} 封面: {pv['image']} av号: {pv['avid']} bv号: {pv['bvid']} 剧集地址: {pv['url']}")
+            # 番剧上线了 有ep 没有pv
+            else:
+                print(f"番剧名: {result['title']} 海报: {result['cover']} 番剧地址: {result['url']}")
+                for ep in result.get("ep"):
+                    print(
+                        f"剧集: 第{ep['volume']}话 标题: {ep['title']} 封面: {ep['image']} av号: {ep['avid']} bv号: {ep['bvid']} 剧集地址: {ep['url']}")
+        # 番剧没上线 只有pv
+        elif result.get("states") == 0:
+            print(f"番剧名: {result['title']} 海报: {result['cover']} 番剧地址: {result['url']}")
+            for pv in result.get("pv"):
+                print(f"标题: {pv['title']} 封面: {pv['image']} av号: {pv['avid']} bv号: {pv['bvid']} 剧集地址: {pv['url']}")
+        else:
+            # 视频单P
+            print(
+                f"标题: {result['title']} 封面: {result['image']} av号: {result['avid']} bv号: {result['bvid']} 视频地址: {result['url']}")
+    else:
+        print("请检查是否输错了呀, 注意：没上线的番 用ss链接无法获取哦")
+
+    end = time.time()
+    print("时间", end - start)
