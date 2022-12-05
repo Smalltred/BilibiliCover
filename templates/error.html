@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>error</title>
+    <link rel="icon" href={{ url_for("static", filename = "images/index.ico") }}>
+    <link rel="stylesheet" href={{ url_for("static", filename = "css/style.css") }}>
+</head>
+<body>
+<div class="nav">
+    <div class="front">
+        <ul>
+            <li><a href="{{ url_for("index") }}">主页</a></li>
+            <li><a href="{{ url_for("index") }}">接口</a></li>
+            <li><a href="{{ url_for("index") }}">下载</a></li>
+            <li><a href="{{ url_for("index") }}">帮助</a></li>
+            <li><a href="{{ url_for("index") }}">关于</a></li>
+        </ul>
+    </div>
+</div>
+<div class="content">
+    <h1>{{ result }}</h1>
+        <div class="button">
+            <a href="{{ url_for("index") }}">点击返回</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

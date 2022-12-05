@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Monster's Home</title>
+    <link rel="icon" href={{ url_for("static", filename = "images/index.ico") }}>
+    <link rel="stylesheet" href={{ url_for("static", filename = "css/style.css") }}>
+</head>
+<body>
+<div class="w">
+    <div class="container">
+        <div class="nav">
+            <div class="front">
+                <ul>
+                    <li><a href="{{ url_for("index") }}">主页</a></li>
+                    <li><a href="{{ url_for("index") }}">接口</a></li>
+                    <li><a href="{{ url_for("index") }}">下载</a></li>
+                    <li><a href="{{ url_for("index") }}">帮助</a></li>
+                    <li><a href="{{ url_for("index") }}">关于</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="content">
+            <div class="title">
+                <h1>bilibili封面提取工具</h1>
+                <p>小技巧: 粘贴B站APP里的分享链或者网页复制的视频地址都可以以哦</p>
+                <p style="color: red">目前一次获取到多张壁纸无法下载，可以使用另存为。</p>
+            </div>
+            <form action="{{ url_for("handleResult") }}" method="post" class="form">
+                <input type="text" value="" class="form text" name="text" autocomplete="off" required><button class="form btn">解析</button>
+            </form>
+        </div>
+        <div class="footer">
+            <p>站长邮箱: <a href="/">admin@hecady.com</a></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
