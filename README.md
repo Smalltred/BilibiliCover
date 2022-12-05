@@ -7,7 +7,7 @@
 # 环境
 
 ```
-Python Flask
+Python3.9 基于Flask的轻量级服务
 ```
 
 # 部署
