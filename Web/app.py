@@ -4,7 +4,7 @@
 # @Time : 2022/3/24 0:06
 from flask import Flask, jsonify, url_for, redirect, render_template, request
 from gevent import pywsgi
-from bilibiliCover import main
+from bilibiliCover import BilibiliCover
 
 app = Flask(__name__)
 app.debug = True
@@ -16,21 +16,24 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/api/<path:data>")
-def bilibiliApi(data):
-    result = main(data)
-    if result is None:
-        return "失败了哦。请检查输入的是否正确"
-    else:
-        return jsonify(result)
+@app.route("/api/<path:string>")
+def bilibiliApi(string):
+    if string != "":
+        bilibili = BilibiliCover(string)
+        result = bilibili.get_cover()
+        if result is None:
+            return "失败了哦。请检查输入的是否正确"
+        else:
+            return jsonify(result)
 
 
-@app.route("/bilibili", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def handleResult():
     if request.method == "POST":
         data = request.form.get("text")
         if data != "":
-            result = main(data)
+            bilibili = BilibiliCover(data)
+            result = bilibili.get_cover()
             # 视频多P
             if isinstance(result, list):
                 return render_template("covers.html", result=result)

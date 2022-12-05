@@ -335,3 +335,8 @@ class BilibiliCover:
                 return "错误"
         except Exception as e:
             return {"code": "403", "error": "参数不合法"}
+
+
+bilibili = BilibiliCover("https://www.bilibili.com/video/BV1H44y1S7HY/?spm_id_from=333.851.b_7265636f6d6d656e64.2")
+result = bilibili.get_cover()
+print(result)
