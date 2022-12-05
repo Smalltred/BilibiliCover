@@ -15,24 +15,20 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/api/<path:string>")
+@app.route("/api/<path:string>", methods=["GET", "POST"])
 def bilibiliApi(string):
-    if string != "":
-        bilibili = BilibiliCover(string)
-        result = bilibili.get_cover()
-        if result is None:
-            return "失败了哦。请检查输入的是否正确"
-        else:
-            return jsonify(result)
+    bilibili = BilibiliCover(string)
+    result = bilibili.get_cover()
+    return jsonify(result)
 
 
 @app.route("/", methods=["GET", "POST"])
 def handleResult():
     if request.method == "POST":
         data = request.form.get("text")
-        if data != "":
-            bilibili = BilibiliCover(data)
-            result = bilibili.get_cover()
+        bilibili = BilibiliCover(data)
+        result = bilibili.get_cover()
+        if result.get("code") is None:
             # 视频多P
             if isinstance(result, list):
                 return render_template("covers.html", result=result)
@@ -54,14 +50,9 @@ def handleResult():
                     return render_template("pv.html", pvs=pvs, result=result)
                 else:
                     return render_template("cover.html", result=result)
-            else:
-                error = "请检查是否输错了呀, 注意：没上线的番 用ss链接无法获取哦"
-                return render_template("error.html", result=error)
+
         else:
-            error = "请检查是否输错了呀, 注意：没上线的番 用ss链接无法获取哦"
-            return render_template("error.html", result=error)
-    else:
-        return redirect(url_for("index"))
+            return render_template("error.html", result=result)
 
 
 if __name__ == '__main__':

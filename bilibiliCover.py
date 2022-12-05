@@ -335,3 +335,4 @@ class BilibiliCover:
                 return "错误"
         except Exception as e:
             return {"code": "403", "error": "参数不合法"}
+
