@@ -339,7 +339,7 @@ class BilibiliCover:
 
 if __name__ == '__main__':
     # 入口
-    user = input("请输入b站要获取封面的的链接，\n如https://www.bilibili.com/video/BV1H44y1S7HY/?spm_id_from=333.851.b_7265636f6d6d656e64.2\n")
+    user = input("请输入b站要获取封面的的链接!\n如https://www.bilibili.com/video/BV1H44y1S7HY/?spm_id_from=333.851.b_7265636f6d6d656e64.2\n")
     start = time.time()
     bilibili = BilibiliCover(user)
     result = bilibili.get_cover()
