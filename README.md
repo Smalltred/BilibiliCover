@@ -7,7 +7,7 @@
 # 环境
 
 ```
-Python Flask
+Python3.9 基于Flask的轻量级服务
 ```
 
 # 部署
@@ -24,7 +24,7 @@ python3 app.py
 可以使用API进行调用，且**API后的参数不能为空**
 
 ```
-https://localhost/api/https://www.bilibili.com/video/BV19d4y1t7sS/?spm_id_from=333.851.b_7265636f6d6d656e64.1
+https://localhost/api/https://www.bilibili.com/video/BV19d4y1t7sS/
 ```
 
 ## 返回内容
