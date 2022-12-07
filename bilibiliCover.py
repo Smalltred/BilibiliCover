@@ -14,27 +14,23 @@ import time
 # noinspection PyBroadException
 
 class BilibiliCover:
+    url = "https://www.bilibili.com/"
+    av = "av"
+    bv_api = "https://api.bilibili.com/x/web-interface/view?bvid="
+    ep_api = "https://api.bilibili.com/pgc/view/web/season?ep_id="
+    ss_api = "https://api.bilibili.com/pgc/view/web/season?season_id="
+    md_api = "https://api.bilibili.com/pgc/review/user?media_id="
+    md_all_api = "https://api.bilibili.com/pgc/web/season/section?season_id="
 
     def __init__(self, content):
         self.content = content
-        self.bv_api = "https://api.bilibili.com/x/web-interface/view?bvid="
-        self.ep_api = "https://api.bilibili.com/pgc/view/web/season?ep_id="
-        self.ss_api = "https://api.bilibili.com/pgc/view/web/season?season_id="
-        self.md_api = "https://api.bilibili.com/pgc/review/user?media_id="
-        self.md_all_api = "https://api.bilibili.com/pgc/web/season/section?season_id="
-        self.url = "https://www.bilibili.com/"
-        self.av = "av"
 
     def get_video_id(self):
         """匹配文本中的链接 判断链接是否重定向 获取重定向后的链接"""
         try:
             b_url = re.search(r"[a-zA-z]+://[^\s]*", self.content).group(0)
-            response = requests.get(b_url)
-            if response.status_code == 302:
-                real_url = requests.get(b_url, allow_redirects=False).url
-                return self.regexId(real_url)
-            else:
-                return self.regexId(b_url)
+            response = requests.get(b_url).url
+            return self.regexId(response)
         except Exception as e:
             return self.regexId(self.content)
 
@@ -65,17 +61,17 @@ class BilibiliCover:
         """匹配BV号"""
         try:
             regex = re.compile(r'(BV.*?).{10}', re.I)
-            bv_id = regex.search(string).group(0)
-            return bv_id
-        except Exception as e:
+            bv_id = regex.search(string)
+            return bv_id.group(0)
+        except Exception:
             return None
 
     def regexAv(self, string):
         """匹配av号"""
         try:
             regex = re.compile(r"(av.*?)\d+", re.I)
-            av_id = regex.search(string).group(0)[2:]
-            return av_id
+            av_id = regex.search(string)
+            return av_id.group(0)[2:]
         except Exception:
             return None
 
@@ -83,27 +79,27 @@ class BilibiliCover:
         """匹配ep号"""
         try:
             regex = re.compile(r"(ep.*?)\d+", re.I)
-            ep_id = regex.search(string).group(0)[2:]
-            return ep_id
-        except Exception as e:
+            ep_id = regex.search(string)
+            return ep_id.group(0)[2:]
+        except Exception:
             return None
 
     def regexSs(self, string):
-        """匹配SS号"""
         try:
+            """匹配SS号"""
             regex = re.compile(r"(ss.*?)\d+", re.I)
-            ss_id = regex.search(string).group(0)[2:]
-            return ss_id
-        except Exception as e:
+            ss_id = regex.search(string)
+            return ss_id.group(0)[2:]
+        except Exception:
             return None
 
     def regexMd(self, string):
         """匹配Med号"""
         try:
             regex = re.compile(r"(md.*?)\d+")
-            md_id = regex.search(string).group(0)[2:]
-            return md_id
-        except Exception as e:
+            md_id = regex.search(string)
+            return md_id.group(0)[2:]
+        except Exception:
             return None
 
     def handleBvResult(self, bv_id):
@@ -334,5 +330,4 @@ class BilibiliCover:
             else:
                 return "错误"
         except Exception as e:
-            return {"code": "403", "error": "参数不合法"}
-
+            return {"code": "403", "msg": "参数不合法"}
