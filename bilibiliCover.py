@@ -8,7 +8,6 @@
 import requests
 import re
 import biliBV
-import time
 
 
 # noinspection PyBroadException
@@ -293,9 +292,10 @@ class BilibiliCover:
                         "volume": ep_volume,
                     }
                     ep_ls.append(ep_dt)
-                data = [{"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls},
-                        {"code": 200, "msg": "success"}]
-                return data
+                result = {"code": 200, "msg": "success",
+                          "data": {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls}}
+
+                return result
         else:
             episodes_pv_data = eps_data.get("result").get("section")
             if len(episodes_pv_data) != 0:
@@ -316,8 +316,9 @@ class BilibiliCover:
                             "avid": self.av + str(ep_pv_avid),
                         }
                         ep_pv_ls.append(ep_pv_dt)
-                    data = {"title": title, "cover": md_cover, "url": md_url, "states": 0, "pv": ep_pv_ls}
-                    return data
+                    result = {"code": 200, "msg": "success",
+                              "data": {"title": title, "cover": md_cover, "url": md_url, "states": 0, "pv": ep_pv_ls}}
+                    return result
 
     def get_cover(self):
         try:
@@ -331,8 +332,6 @@ class BilibiliCover:
             elif id_type == "md":
                 return self.handleMdResult(video_id)
         except Exception as e:
-            return {"code": "403", "msg": "参数不合法"}
+            return {"code": 403, "msg": "参数不合法"}
 
 
-cover = BilibiliCover("https://www.bilibili.com/video/BV19D4y1Y7ch/?spm_id_from=333.851.b_7265636f6d6d656e64.2")
-print(cover.get_cover())

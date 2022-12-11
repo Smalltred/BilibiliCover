@@ -28,32 +28,36 @@ def handleResult():
         data = request.form.get("text")
         bilibili = BilibiliCover(data)
         result = bilibili.get_cover()
-        # 视频多P
-        if isinstance(result, list):
-            return render_template("covers.html", result=result)
-        elif isinstance(result, dict):
-            if result.get("code") is None:
-                # states = 1 上线 states = 0 没上线
-                if result.get("states") == 1:
-                    # 番剧上线了 有ep 有pv
-                    if result.get("ep") is not None and result.get("pv") is not None:
-                        eps = result.get("ep")
+        if result.get("code") == 200:
+            video_data = result.get("data")
+            if video_data is not None:
+                # 多个视频
+                if isinstance(video_data, list):
+                    return render_template("covers.html", result=video_data)
+                # 单个视频
+                elif isinstance(video_data, dict):
+                    # states = 1 上线 states = 0 没上线
+                    if video_data.get("states") == 1:
+                        # 番剧上线了 有ep 有pv
+                        if video_data.get("ep") is not None and video_data.get("pv") is not None:
+                            eps = result.get("ep")
+                            pvs = result.get("pv")
+                            return render_template("mds.html", pvs=pvs, eps=eps, result=video_data)
+                        # 番剧上线了 有ep 没有pv
+                        else:
+                            eps = result.get("ep")
+                            return render_template("ep.html", eps=eps, result=video_data)
+                    # 番剧没上线 只有pv
+                    elif video_data.get("states") == 0:
                         pvs = result.get("pv")
-                        return render_template("mds.html", pvs=pvs, eps=eps, result=result)
-                    # 番剧上线了 有ep 没有pv
+                        return render_template("pv.html", pvs=pvs, result=video_data)
                     else:
-                        eps = result.get("ep")
-                        return render_template("ep.html", eps=eps, result=result)
-                # 番剧没上线 只有pv
-                elif result.get("states") == 0:
-                    pvs = result.get("pv")
-                    return render_template("pv.html", pvs=pvs, result=result)
-                else:
-                    return render_template("cover.html", result=result)
-
-            else:
-                # return render_template("error.html", result=result)
-                return abort(404)
+                        # 视频单p
+                        return render_template("cover.html", result=video_data)
+        elif result.get("code") == 403:
+            return jsonify(result)
+        else:
+            return abort(404)
 
 
 if __name__ == '__main__':
