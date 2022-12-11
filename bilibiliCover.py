@@ -334,7 +334,3 @@ class BilibiliCover:
         except Exception as e:
             return {"code": 403, "msg": "参数不合法"}
 
-
-if __name__ == '__main__':
-    cover = BilibiliCover("https://www.bilibili.com/bangumi/media/md28234613/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2")
-    print(cover.get_cover())
