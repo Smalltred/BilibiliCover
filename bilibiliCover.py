@@ -272,8 +272,8 @@ class BilibiliCover:
 
                         ep_ls.append(ep_dt)
                     data = {"code": 200, "msg": "success",
-                            "data": {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls,
-                                     "pv": ep_pv_ls}}
+                            "data": {"title": title, "cover": md_cover, "url": md_url, "states": 1, "eps": ep_ls,
+                                     "pvs": ep_pv_ls}}
                     return data
             else:
                 for ep_data in episodes_data:
@@ -293,7 +293,7 @@ class BilibiliCover:
                     }
                     ep_ls.append(ep_dt)
                 result = {"code": 200, "msg": "success",
-                          "data": {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls}}
+                          "data": {"title": title, "cover": md_cover, "url": md_url, "states": 1, "eps": ep_ls}}
 
                 return result
         else:
@@ -317,7 +317,7 @@ class BilibiliCover:
                         }
                         ep_pv_ls.append(ep_pv_dt)
                     result = {"code": 200, "msg": "success",
-                              "data": {"title": title, "cover": md_cover, "url": md_url, "states": 0, "pv": ep_pv_ls}}
+                              "data": {"title": title, "cover": md_cover, "url": md_url, "states": 0, "pvs": ep_pv_ls}}
                     return result
 
     def get_cover(self):
@@ -335,3 +335,6 @@ class BilibiliCover:
             return {"code": 403, "msg": "参数不合法"}
 
 
+if __name__ == '__main__':
+    cover = BilibiliCover("https://www.bilibili.com/bangumi/media/md28234613/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.2")
+    print(cover.get_cover())

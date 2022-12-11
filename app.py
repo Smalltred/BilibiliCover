@@ -39,17 +39,17 @@ def handleResult():
                     # states = 1 上线 states = 0 没上线
                     if video_data.get("states") == 1:
                         # 番剧上线了 有ep 有pv
-                        if video_data.get("ep") is not None and video_data.get("pv") is not None:
-                            eps = result.get("ep")
-                            pvs = result.get("pv")
+                        if video_data.get("eps") is not None and video_data.get("pvs") is not None:
+                            eps = video_data.get("eps")
+                            pvs = video_data.get("pvs")
                             return render_template("mds.html", pvs=pvs, eps=eps, result=video_data)
                         # 番剧上线了 有ep 没有pv
                         else:
-                            eps = result.get("ep")
+                            eps = video_data.get("eps")
                             return render_template("ep.html", eps=eps, result=video_data)
                     # 番剧没上线 只有pv
                     elif video_data.get("states") == 0:
-                        pvs = result.get("pv")
+                        pvs = video_data.get("pvs")
                         return render_template("pv.html", pvs=pvs, result=video_data)
                     else:
                         # 视频单p
