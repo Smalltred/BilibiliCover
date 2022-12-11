@@ -15,7 +15,7 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 @app.route("/")
 @cache.cached(timeout=3600)
 def index():
-    return render_template("index.html", cache_control="public, max-age=3600")
+    return render_template("index.html")
 
 
 @app.route("/api/<path:string>", methods=["GET", "POST"])
@@ -23,6 +23,7 @@ def index():
 def bilibiliApi(string):
     bilibili = BilibiliCover(string)
     result = bilibili.get_cover()
+    print(result)
     return jsonify(result)
 
 
