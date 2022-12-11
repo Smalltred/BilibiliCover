@@ -105,10 +105,10 @@ class BilibiliCover:
     def handleBvResult(self, bv_id):
         """根据BV号 判断是否有分P 是返回全部分P的信息 否返回该视频的封面"""
         data = []
-        result = requests.get(self.bv_api + bv_id).json()
+        response = requests.get(self.bv_api + bv_id).json()
         # 多p判断
-        if result.get("data").get("ugc_season") is not None:
-            for vds in result.get("data").get("ugc_season").get("sections"):
+        if response.get("data").get("ugc_season") is not None:
+            for vds in response.get("data").get("ugc_season").get("sections"):
                 for vd in vds.get("episodes"):
                     vd_title = vd.get("title")
                     vd_cover = vd.get("arc").get("pic")
@@ -122,22 +122,23 @@ class BilibiliCover:
                         "url": self.url + vd_bvid,
                     }
                     data.append(temp)
-                return data
+                result = {"code": 200, "msg": "success", "data": data}
+                return result
         # 单p判断
         else:
-            vd_data = result.get("data")
+            vd_data = response.get("data")
             vd_title = vd_data.get("title")
             vd_cover = vd_data.get("pic")
             vd_bvid = vd_data.get("bvid")
             vd_avid = vd_data.get("aid")
-            data = {
+            result = {"code": 200, "msg": "success", "data": {
                 "title": vd_title,
                 "image": vd_cover,
                 "bvid": vd_bvid,
                 "avid": self.av + str(vd_avid),
                 "url": self.url + vd_bvid,
-            }
-            return data
+            }}
+            return result
 
     def handleEpResult(self, ep_id):
 
@@ -145,10 +146,10 @@ class BilibiliCover:
         1.判断请求内容是否存在
         2.判断番剧是否上线  是 继续判断是(pv或小剧场)还是番剧 否 判断是否为(pv或小剧场)"""
 
-        result = requests.get(self.ep_api + ep_id).json()
+        response = requests.get(self.ep_api + ep_id).json()
         # 判断番剧是否上线 0 没上线 1 上线
-        if len(result.get("result").get("episodes")) != 0:
-            for eps in result.get("result").get("episodes"):
+        if len(response.get("result").get("episodes")) != 0:
+            for eps in response.get("result").get("episodes"):
                 # 判断是番剧封面还是PV封面
                 if eps.get("id") == int(ep_id):
                     ep_title = eps.get("share_copy")
@@ -156,17 +157,17 @@ class BilibiliCover:
                     ep_bvid = eps.get("bvid")
                     ep_avid = eps.get("aid")
                     ep_url = eps.get("share_url")
-                    data = {
+                    result = {"code": 200, "msg": "success", "data": {
                         "title": ep_title,
                         "image": ep_cover,
                         "bvid": ep_bvid,
                         "avid": self.av + str(ep_avid),
                         "url": ep_url,
-                    }
-                    return data
+                    }}
+                    return result
         # 判断是番剧封面还是PV封面
         else:
-            for pvs in result.get("result").get("section"):
+            for pvs in response.get("result").get("section"):
                 for pv in (pvs.get("episodes")):
                     if pv.get("id") == int(ep_id):
                         ep_pv_title = pv.get("share_copy")
@@ -174,64 +175,64 @@ class BilibiliCover:
                         ep_pv_bvid = pv.get("bvid")
                         ep_pv_avid = pv.get("aid")
                         ep_pv_url = pv.get("share_url")
-                        data = {
+                        result = {"code": 200, "msg": "success", "data": {
                             "title": ep_pv_title,
                             "image": ep_pv_cover,
                             "bvid": ep_pv_bvid,
                             "avid": self.av + str(ep_pv_avid),
                             "url": ep_pv_url,
-                        }
-                        return data
+                        }}
+                        return result
 
     def handleSsResult(self, ss_id):
-        result = requests.get(self.ss_api + ss_id).json()
+        response = requests.get(self.ss_api + ss_id).json()
         # 上线了则
-        if len(result.get("result").get("episodes")) != 0:
-            if result.get("result").get("seasons") is not None:
-                for ss in result.get("result").get("seasons"):
+        if len(response.get("result").get("episodes")) != 0:
+            if response.get("result").get("seasons") is not None:
+                for ss in response.get("result").get("seasons"):
                     if ss.get("season_id") == int(ss_id):
-                        for eps in result.get("result").get("episodes"):
+                        for eps in response.get("result").get("episodes"):
                             if ss.get("new_ep").get("id") == eps.get("id"):
                                 ep_title = eps.get("share_copy")
                                 ep_cover = eps.get("cover")
                                 ep_bvid = eps.get("bvid")
                                 ep_avid = eps.get("aid")
                                 ep_url = eps.get("share_url")
-                                data = {
+                                result = {"code": 200, "msg": "success", "data": {
                                     "title": ep_title,
                                     "image": ep_cover,
                                     "bvid": ep_bvid,
                                     "avid": self.av + str(ep_avid),
                                     "url": ep_url,
-                                }
-                                return data
+                                }}
+                                return result
         # 没上线则
         else:
-            if len(result.get("result").get("section")) != 0:
-                for pvs in result.get("result").get("section"):
+            if len(response.get("result").get("section")) != 0:
+                for pvs in response.get("result").get("section"):
                     for pv in (pvs.get("episodes")):
                         ep_title = pv.get("share_copy")
                         ep_cover = pv.get("cover")
                         ep_bvid = pv.get("bvid")
                         ep_avid = pv.get("aid")
                         ep_url = pv.get("share_url")
-                        data = {
+                        data = {"code": 200, "msg": "success", "data": {
                             "title": ep_title,
                             "image": ep_cover,
                             "bvid": ep_bvid,
                             "avid": self.av + str(ep_avid),
                             "url": ep_url,
-                        }
+                        }}
                         return data
 
     def handleMdResult(self, md_id):
         ep_ls = []
         ep_pv_ls = []
-        result = requests.get(self.md_api + md_id).json()
-        ssid = result.get("result").get("media").get("season_id")
-        title = result.get("result").get("media").get("title")
-        md_cover = result.get("result").get("media").get("cover")
-        md_url = result.get("result").get("media").get("share_url")
+        response = requests.get(self.md_api + md_id).json()
+        ssid = response.get("result").get("media").get("season_id")
+        title = response.get("result").get("media").get("title")
+        md_cover = response.get("result").get("media").get("cover")
+        md_url = response.get("result").get("media").get("share_url")
         eps_data = requests.get(self.md_all_api + str(ssid)).json()
         if eps_data.get("result").get("main_section") is not None:
             episodes_data = eps_data.get("result").get("main_section").get("episodes")
@@ -271,8 +272,9 @@ class BilibiliCover:
                         }
 
                         ep_ls.append(ep_dt)
-                    data = {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls,
-                            "pv": ep_pv_ls, }
+                    data = {"code": 200, "msg": "success",
+                            "data": {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls,
+                                     "pv": ep_pv_ls}}
                     return data
             else:
                 for ep_data in episodes_data:
@@ -291,7 +293,8 @@ class BilibiliCover:
                         "volume": ep_volume,
                     }
                     ep_ls.append(ep_dt)
-                data = {"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls}
+                data = [{"title": title, "cover": md_cover, "url": md_url, "states": 1, "ep": ep_ls},
+                        {"code": 200, "msg": "success"}]
                 return data
         else:
             episodes_pv_data = eps_data.get("result").get("section")
@@ -329,3 +332,7 @@ class BilibiliCover:
                 return self.handleMdResult(video_id)
         except Exception as e:
             return {"code": "403", "msg": "参数不合法"}
+
+
+cover = BilibiliCover("https://www.bilibili.com/video/BV19D4y1Y7ch/?spm_id_from=333.851.b_7265636f6d6d656e64.2")
+print(cover.get_cover())

@@ -24,10 +24,9 @@
             <div class="title">
                 <h1>bilibili封面提取工具</h1>
                 <p>小技巧: 粘贴B站APP里的分享链或者网页复制的视频地址都可以以哦</p>
-                <p style="color: red">目前一次获取到多张壁纸无法下载，可以使用另存为。</p>
             </div>
-            <form action="{{ url_for("handleResult") }}" method="post" class="form">
-                <input type="text" value="" class="form text" name="text" autocomplete="off"><button class="form btn">解析</button>
+            <form action="{{ url_for("handleResult") }}" method="post" class="form" id="form">
+                <input type="text" value="" class="form text" name="text" autocomplete="off" id="content"><button class="form btn" id="submit-button">解析</button>
             </form>
         </div>
         <div class="footer">
@@ -35,5 +34,20 @@
         </div>
     </div>
 </div>
+<script>
+        document.getElementById("submit-button").addEventListener("click", function (e) {
+            // 获取表单中的内容
+            var content = document.getElementById("content").value;
+
+            // 判断内容是否为空
+            if (content === "") {
+                alert("请不要提交空的内容.");
+                e.preventDefault();  // 阻止表单的提交
+            } else {
+                // 正常提交表单
+            }
+        });
+
+    </script>
 </body>
 </html>

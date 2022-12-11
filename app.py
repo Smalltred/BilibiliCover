@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # -- coding: utf-8 --
 # @Author : Small_tred
-from flask import Flask, jsonify, url_for, redirect, render_template, request
+from flask import Flask, jsonify, render_template, request, abort
 from gevent import pywsgi
 from bilibiliCover import BilibiliCover
 
 app = Flask(__name__)
-app.debug = True
+app.debug = False
 app.config["JSON_AS_ASCII"] = False
 
 
@@ -52,7 +52,8 @@ def handleResult():
                     return render_template("cover.html", result=result)
 
             else:
-                return render_template("error.html", result=result)
+                # return render_template("error.html", result=result)
+                return abort(404)
 
 
 if __name__ == '__main__':
