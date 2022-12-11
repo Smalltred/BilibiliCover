@@ -28,11 +28,11 @@ def handleResult():
         data = request.form.get("text")
         bilibili = BilibiliCover(data)
         result = bilibili.get_cover()
-        if result.get("code") is None:
-            # 视频多P
-            if isinstance(result, list):
-                return render_template("covers.html", result=result)
-            elif isinstance(result, dict):
+        # 视频多P
+        if isinstance(result, list):
+            return render_template("covers.html", result=result)
+        elif isinstance(result, dict):
+            if result.get("code") is None:
                 # states = 1 上线 states = 0 没上线
                 if result.get("states") == 1:
                     # 番剧上线了 有ep 有pv
@@ -51,8 +51,8 @@ def handleResult():
                 else:
                     return render_template("cover.html", result=result)
 
-        else:
-            return render_template("error.html", result=result)
+            else:
+                return render_template("error.html", result=result)
 
 
 if __name__ == '__main__':

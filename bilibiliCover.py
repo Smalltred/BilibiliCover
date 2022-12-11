@@ -327,7 +327,5 @@ class BilibiliCover:
                 return self.handleEpResult(video_id)
             elif id_type == "md":
                 return self.handleMdResult(video_id)
-            else:
-                return "错误"
         except Exception as e:
             return {"code": "403", "msg": "参数不合法"}
