@@ -332,5 +332,5 @@ class BilibiliCover:
             elif id_type == "md":
                 return self.handleMdResult(video_id)
         except Exception as e:
-            return {"code": 403, "msg": "参数不合法"}
+            return {"code": 403, "msg": "好像不是b站的视频~"}
 

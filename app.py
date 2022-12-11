@@ -4,6 +4,7 @@
 from flask import Flask, jsonify, render_template, request, abort
 from gevent import pywsgi
 from bilibiliCover import BilibiliCover
+from flask_caching import Cache
 
 app = Flask(__name__)
 app.debug = False
@@ -12,7 +13,7 @@ app.config["JSON_AS_ASCII"] = False
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", cache_control="public, max-age=3600")
 
 
 @app.route("/api/<path:string>", methods=["GET", "POST"])
