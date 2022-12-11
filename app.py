@@ -9,14 +9,17 @@ from flask_caching import Cache
 app = Flask(__name__)
 app.debug = False
 app.config["JSON_AS_ASCII"] = False
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 
 @app.route("/")
+@cache.cached(timeout=3600)
 def index():
     return render_template("index.html", cache_control="public, max-age=3600")
 
 
 @app.route("/api/<path:string>", methods=["GET", "POST"])
+@cache.cached(timeout=3600)
 def bilibiliApi(string):
     bilibili = BilibiliCover(string)
     result = bilibili.get_cover()
@@ -24,6 +27,7 @@ def bilibiliApi(string):
 
 
 @app.route("/", methods=["GET", "POST"])
+@cache.cached(timeout=3600)
 def handleResult():
     if request.method == "POST":
         data = request.form.get("text")
