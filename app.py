@@ -33,7 +33,7 @@ def handleResult():
             return render_template("covers.html", result=result)
         elif isinstance(result, dict):
             if result.get("code") is None:
-            # states = 1 上线 states = 0 没上线
+                # states = 1 上线 states = 0 没上线
                 if result.get("states") == 1:
                     # 番剧上线了 有ep 有pv
                     if result.get("ep") is not None and result.get("pv") is not None:
