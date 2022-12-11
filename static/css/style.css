@@ -182,14 +182,18 @@ body {
 .button {
     text-align: center;
     padding: 20px 0;
+    height: 40px;
+    line-height: 40px;
 }
 
-.button a {
-    padding: 10px 30px;
+.button button {
     margin: 0 10px;
+    padding: 10px 30px;
+    cursor: pointer;
     color: #fdfdfd;
     text-decoration: none;
     background-color: #625ee4;
+    border: 0;
     border-radius: 4px;
 }
 

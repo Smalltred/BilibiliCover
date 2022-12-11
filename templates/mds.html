@@ -2,13 +2,12 @@
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
-    <title></title>
-    {#    <link rel="stylesheet" href="style.css">#}
-    {#    <link rel="icon" href="favicon.png">#}
+    <title>番剧MD页面</title>
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="referrer" content="never">
     <link rel="icon" href={{ url_for("static", filename = "images/index.ico") }}>
     <link rel="stylesheet" href={{ url_for("static", filename = "css/style.css") }}>
+    <script type="text/javascript" src={{ url_for("static", filename = "js/download.js") }}></script>
 </head>
 <body>
 <div class="nav">
@@ -27,8 +26,8 @@
         <p><a href="{{ result.url }}" target="_blank">{{ result.title }}</a></p>
         <img src="{{ result.cover }}" alt="{{ result.title }}">
         <div class="button">
-            <a href="#">下载</a>
-            <a href="{{ result.cover }}" target="_blank">查看</a>
+            <button onclick="downloadImage('{{ result.cover }}')">下载</button>
+            <button onclick="window.open('{{ result.cover }}')">查看</button>
         </div>
     </div>
     <div class="img-data">
@@ -41,8 +40,8 @@
                 </div>
                 <img src="{{ ep.image }}" alt="{{ ep.title }}" title="{{ ep.title }}">
                 <div class="button">
-                    <a href="#">下载</a>
-                    <a href="{{ ep.image }}" target="_blank">查看</a>
+                    <button onclick="downloadImage('{{ ep.image }}')">下载</button>
+                    <button onclick="window.open('{{ ep.image }}')">查看</button>
                 </div>
             </div>
         {% endfor %}
@@ -55,8 +54,8 @@
                 </div>
                 <img src="{{ pv.image }}" alt="{{ pv.title }}" title="{{ pv.title }}">
                 <div class="button">
-                    <a href="#">下载</a>
-                    <a href="{{ pv.image }}" target="_blank">查看</a>
+                    <button onclick="downloadImage('{{ pv.image }}')">下载</button>
+                    <button onclick="window.open('{{ pv.image }}')">查看</button>
                 </div>
             </div>
         {% endfor %}
