@@ -31,5 +31,10 @@
     <button onclick="downloadImage('{{ result.image }}')">下载</button>
     <button onclick="window.open('{{ result.image }}')">查看</button>
 </div>
+<div class="tool">
+    <button class="back_index" onclick="location.assign('{{ url_for("index") }}')">
+        <span>返回</span>
+    </button>
+</div>
 </body>
 </html>
