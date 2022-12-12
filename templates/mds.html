@@ -2,12 +2,13 @@
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
-    <title>番剧MD页面</title>
+    <title>{{ result.title }} - bilibili封面提取工具</title>
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="referrer" content="never">
     <link rel="icon" href={{ url_for("static", filename = "images/index.ico") }}>
     <link rel="stylesheet" href={{ url_for("static", filename = "css/style.css") }}>
     <script type="text/javascript" src={{ url_for("static", filename = "js/download.js") }}></script>
+    <script type="text/javascript" src={{ url_for("static", filename = "js/scroll.js") }}></script>
 </head>
 <body>
 <div class="nav">
@@ -22,7 +23,7 @@
     </div>
 </div>
 <div class="img-content">
-    <div class="img-title">
+    <div class="img-title" id="top">
         <p><a href="{{ result.url }}" target="_blank">{{ result.title }}</a></p>
         <img src="{{ result.cover }}" alt="{{ result.title }}">
         <div class="button">
@@ -60,6 +61,14 @@
             </div>
         {% endfor %}
     </div>
+</div>
+<div class="tool">
+    <button class="back_top" onclick="scrollToTop()">
+        <span>顶部</span>
+    </button>
+    <button class="back_index" onclick="location.assign('{{ url_for("index") }}')">
+        <span>返回</span>
+    </button>
 </div>
 </body>
 </html>

@@ -7,7 +7,7 @@
 
 body {
     background-color: rgba(247, 248, 249);
-    font-family: "楷体", sans-serif;
+    font-family: "微软雅黑", sans-serif;
 }
 
 
@@ -196,6 +196,53 @@ body {
     border: 0;
     border-radius: 4px;
 }
+
+/*工具div的公共样式*/
+.tool span {
+    display: block;
+}
+
+.tool .icon-top {
+    padding: 0 0;
+    font-size: 1px;
+}
+
+.tool button:hover {
+    cursor: pointer;
+    background-color: #e3e5e7;
+}
+
+.tool button {
+    position: fixed;
+    padding: 12px;
+    color: #333333;
+    font-size: 12px;
+    text-align: center;
+    border-radius: 8px;
+    border: 1px solid #888888;
+    background-color: rgba(255, 255, 255, 0.96);
+}
+
+
+/*固定悬浮 - 工具*/
+.back_index {
+    left: 95%;
+    top: 80%;
+}
+
+/*固定悬浮 - 上去*/
+
+.back_top {
+    left: 95%;
+    top: 80%;
+    margin: 45px 0;
+}
+
+
+
+
+
+
 
 
 
