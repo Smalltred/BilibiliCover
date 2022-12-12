@@ -48,11 +48,13 @@
         {% endfor %}
     </div>
 </div>
-<div class="back_top">
-    <a href="javascript:void(0)" onclick="scrollToTop()">
-        <span class="icon-top"></span>
+<div class="tool">
+    <button class="back_top" onclick="scrollToTop()">
         <span>顶部</span>
-    </a>
+    </button>
+    <button class="back_index" onclick="location.assign('{{ url_for("index") }}')">
+        <span>返回</span>
+    </button>
 </div>
 </body>
 </html>
