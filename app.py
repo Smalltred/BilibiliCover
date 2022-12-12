@@ -27,8 +27,8 @@ def bilibiliApi(string):
     return jsonify(result)
 
 
-@app.route("/", methods=["GET", "POST"])
 @cache.cached(timeout=3600)
+@app.route("/", methods=["GET", "POST"])
 def handleResult():
     if request.method == "POST":
         data = request.form.get("text")
@@ -61,7 +61,7 @@ def handleResult():
                         # 视频单p
                         return render_template("cover.html", result=video_data)
         elif result.get("code") == 403:
-            return jsonify(result)
+            return render_template("error.html", result=result)
         else:
             return abort(404)
 
