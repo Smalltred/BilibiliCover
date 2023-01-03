@@ -56,7 +56,8 @@ class BilibiliCover:
             id_type = "md"
             return md_id, id_type
 
-    def regexBv(self, string):
+    @staticmethod
+    def regexBv(string):
         """匹配BV号"""
         try:
             regex = re.compile(r'(BV.*?).{10}', re.I)
@@ -65,7 +66,8 @@ class BilibiliCover:
         except Exception:
             return None
 
-    def regexAv(self, string):
+    @staticmethod
+    def regexAv(string):
         """匹配av号"""
         try:
             regex = re.compile(r"(av.*?)\d+", re.I)
@@ -74,7 +76,8 @@ class BilibiliCover:
         except Exception:
             return None
 
-    def regexEp(self, string):
+    @staticmethod
+    def regexEp(string):
         """匹配ep号"""
         try:
             regex = re.compile(r"(ep.*?)\d+", re.I)
@@ -83,7 +86,8 @@ class BilibiliCover:
         except Exception:
             return None
 
-    def regexSs(self, string):
+    @staticmethod
+    def regexSs(string):
         try:
             """匹配SS号"""
             regex = re.compile(r"(ss.*?)\d+", re.I)
@@ -92,7 +96,8 @@ class BilibiliCover:
         except Exception:
             return None
 
-    def regexMd(self, string):
+    @staticmethod
+    def regexMd(string):
         """匹配Med号"""
         try:
             regex = re.compile(r"(md.*?)\d+")
@@ -322,7 +327,7 @@ class BilibiliCover:
 
     def get_cover(self):
         try:
-            video_id, id_type = self.get_video_id()
+            video_id, id_type = self.regexId(self.content)
             if id_type == "bv":
                 return self.handleBvResult(video_id)
             elif id_type == "ss":
@@ -331,6 +336,7 @@ class BilibiliCover:
                 return self.handleEpResult(video_id)
             elif id_type == "md":
                 return self.handleMdResult(video_id)
-        except Exception as e:
-            return {"code": 403, "msg": "好像不是b站的视频~"}
-
+        except TypeError as e:
+            print("错误 {}".format(e))
+            error = {"code": 403, "msg": "这好像不是B站的链接哦~"}
+            return error
