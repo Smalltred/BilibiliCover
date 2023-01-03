@@ -327,7 +327,7 @@ class BilibiliCover:
 
     def get_cover(self):
         try:
-            video_id, id_type = self.regexId(self.content)
+            video_id, id_type = self.get_video_id()
             if id_type == "bv":
                 return self.handleBvResult(video_id)
             elif id_type == "ss":
