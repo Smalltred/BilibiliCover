@@ -24,9 +24,10 @@ def decode(x):
 
 
 def encode(x):
-    x = (x ^ xor) + add
+    y = int(x)
+    y = (y ^ xor) + add
     r = list('BV1  4 1 7  ')
     for i in range(6):
-        r[s[i]] = table[x // 58**i % 58]
+        r[s[i]] = table[y // 58**i % 58]
     return ''.join(r)
 

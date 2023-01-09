@@ -4,35 +4,32 @@
 from flask import Flask, jsonify, render_template, request, abort
 from gevent import pywsgi
 from bilibiliCover import BilibiliCover
-from flask_caching import Cache
 
 app = Flask(__name__)
 app.debug = False
 app.config["JSON_AS_ASCII"] = False
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+
 
 
 @app.route("/")
-@cache.cached(timeout=3600)
 def index():
     return render_template("index.html")
 
 
-@app.route("/api/", methods=["GET", "POST"])
-@cache.cached(timeout=3600)
+@app.route("/api", methods=["GET", "POST"])
 def bilibiliApi():
-    if request.args is None:
-        error = {"code": 403, "msg": "这好像不是B站的链接哦~"}
-        return error
     get_data = request.args.to_dict()
-    url = get_data.get("url")
+    if len(get_data) == 0:
+        result = {"code": 404, "msg": "请求不合法"}
+        return jsonify(result), 404
+    url = get_data.get("b")
+    if 'b' not in get_data or not get_data['b']:
+        return {"code": 404, "msg": "请求不合法"}, 404
     bilibili = BilibiliCover(url)
     result = bilibili.get_cover()
-    print(result)
     return jsonify(result)
 
 
-@cache.cached(timeout=3600)
 @app.route("/", methods=["GET", "POST"])
 def handleResult():
     if request.method == "POST":

@@ -59,52 +59,41 @@ class BilibiliCover:
     @staticmethod
     def regexBv(string):
         """匹配BV号"""
-        try:
-            regex = re.compile(r'(BV.*?).{10}', re.I)
-            bv_id = regex.search(string)
+        regex = re.compile(r'(BV.*?).{10}', re.I)
+        bv_id = regex.search(string)
+        if bv_id:
             return bv_id.group(0)
-        except Exception:
-            return None
 
     @staticmethod
     def regexAv(string):
         """匹配av号"""
-        try:
-            regex = re.compile(r"(av.*?)\d+", re.I)
-            av_id = regex.search(string)
+        regex = re.compile(r"(av.*?)\d+", re.I)
+        av_id = regex.search(string)
+        if av_id:
             return av_id.group(0)[2:]
-        except Exception:
-            return None
 
     @staticmethod
     def regexEp(string):
-        """匹配ep号"""
-        try:
-            regex = re.compile(r"(ep.*?)\d+", re.I)
-            ep_id = regex.search(string)
+        regex = re.compile(r"(ep.*?)\d+", re.I)
+        ep_id = regex.search(string)
+        if ep_id:
             return ep_id.group(0)[2:]
-        except Exception:
-            return None
 
     @staticmethod
     def regexSs(string):
-        try:
-            """匹配SS号"""
-            regex = re.compile(r"(ss.*?)\d+", re.I)
-            ss_id = regex.search(string)
+        """匹配SS号"""
+        regex = re.compile(r"(ss.*?)\d+", re.I)
+        ss_id = regex.search(string)
+        if ss_id:
             return ss_id.group(0)[2:]
-        except Exception:
-            return None
 
     @staticmethod
     def regexMd(string):
         """匹配Med号"""
-        try:
-            regex = re.compile(r"(md.*?)\d+")
-            md_id = regex.search(string)
+        regex = re.compile(r"(md.*?)\d+")
+        md_id = regex.search(string)
+        if md_id:
             return md_id.group(0)[2:]
-        except Exception:
-            return None
 
     def handleBvResult(self, bv_id):
         """根据BV号 判断是否有分P 是返回全部分P的信息 否返回该视频的封面"""
