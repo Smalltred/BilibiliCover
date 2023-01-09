@@ -18,10 +18,15 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/api/<path:string>", methods=["GET", "POST"])
+@app.route("/api/", methods=["GET", "POST"])
 @cache.cached(timeout=3600)
-def bilibiliApi(string):
-    bilibili = BilibiliCover(string)
+def bilibiliApi():
+    if request.args is None:
+        error = {"code": 403, "msg": "这好像不是B站的链接哦~"}
+        return error
+    get_data = request.args.to_dict()
+    url = get_data.get("url")
+    bilibili = BilibiliCover(url)
     result = bilibili.get_cover()
     print(result)
     return jsonify(result)
