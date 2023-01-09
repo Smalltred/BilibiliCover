@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -- coding: utf-8 --
 # @Author : Small_tred
-from flask import Flask, jsonify, render_template, request, abort
+from flask import Flask, jsonify, render_template, request, abort, redirect
 from gevent import pywsgi
 from bilibiliCover import BilibiliCover
 
@@ -9,6 +9,25 @@ app = Flask(__name__)
 app.debug = False
 app.config["JSON_AS_ASCII"] = False
 
+
+@app.route("/blog")
+def blog():
+    return redirect("https://www.hecady.com")
+
+
+@app.route("/page")
+def index_page():
+    return redirect("https://i.hecady.com")
+
+
+@app.route("/download")
+def download():
+    return redirect("https://github.com/Smalltred/BilibiliCover")
+
+
+@app.route("/apiPage")
+def api_page():
+    return redirect("https://www.apifox.cn/apidoc/shared-99079a3b-3507-4be3-a964-6656cea1f8c2/api-57757445")
 
 
 @app.route("/")
@@ -21,11 +40,11 @@ def bilibiliApi():
     get_data = request.args.to_dict()
     if len(get_data) == 0:
         result = {"code": 404, "msg": "请求不合法"}
-        return jsonify(result), 404
+        return jsonify(result)
     url = get_data.get("b")
     if 'b' not in get_data or not get_data['b']:
         result = {"code": 404, "msg": "请求不合法"}
-        return result, 404
+        return result
     bilibili = BilibiliCover(url)
     result = bilibili.get_cover()
     return jsonify(result)
