@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title -%}{{ result.title }}{%- endblock %}
+{% block head -%}
+	{{ super() }}
+{%- endblock %}
+{% block nav -%}
+	{{ super() }}
+{%- endblock %}
+{% block content -%}
+<div class="img-title">
+	<p><a href="{{ result.url }}" target="_blank">{{ result.title }}</a></p>
+</div>
+<div class="img-content">
+	<img src="{{ result.image }}" title="{{ result.title }}" alt="{{ result.title }}" id="image">
+</div>
+<div class="button">
+	<button onclick="downloadImage('{{ result.image }}')">下载</button>
+	<button onclick="window.open('{{ result.image }}')">查看</button>
+</div>
+{%- endblock %}
+{% block tookBox -%}
+	{{ super() }}
+{%- endblock %}

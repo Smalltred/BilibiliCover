@@ -1,28 +1,14 @@
-<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ result.title }} - bilibili封面提取工具</title>
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <meta name="referrer" content="never">
-    <link rel="icon" href={{ url_for("static", filename = "images/index.ico") }}>
-    <link rel="stylesheet" href={{ url_for("static", filename = "css/style.css") }}>
-    <script type="text/javascript" src={{ url_for("static", filename = "js/download.js") }}></script>
-    <script type="text/javascript" src={{ url_for("static", filename = "js/scroll.js") }}></script>
-</head>
-<body>
-<div class="nav">
-    <div class="front">
-        <ul>
-            <li><a href="{{ url_for("index_page") }}" target="_blank">主页</a></li>
-            <li><a href="{{ url_for("api_page") }}" target="_blank">接口</a></li>
-            <li><a href="{{ url_for("download") }}" target="_blank">下载</a></li>
-            <li><a href="{{ url_for("blog") }}" target="_blank">关于</a></li>
-        </ul>
-    </div>
-</div>
-<div class="img-content">
-    <div class="img-title" id="top">
+{% extends "base.html" %}
+{% block title -%}{{ result.title }}{%- endblock %}
+{% block head -%}
+	{{ super() }}
+{%- endblock %}
+{% block nav -%}
+	{{ super() }}
+{%- endblock %}
+{% block content -%}
+<div class="img-content" id="top">
+    <div class="img-title">
         <p><a href="{{ result.url }}" target="_blank">{{ result.title }}</a></p>
         <img src="{{ result.cover }}" alt="{{ result.title }}">
         <div class="button">
@@ -61,13 +47,7 @@
         {% endfor %}
     </div>
 </div>
-<div class="tool">
-    <button class="back_top" onclick="scrollToTop()">
-        <span>顶部</span>
-    </button>
-    <button class="back_index" onclick="location.assign('{{ url_for("index") }}')">
-        <span>返回</span>
-    </button>
-</div>
-</body>
-</html>
+{%- endblock %}
+{% block tookBox -%}
+	{{ super() }}
+{%- endblock %}

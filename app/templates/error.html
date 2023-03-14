@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title -%}{{ result.title }}{%- endblock %}
+{% block head -%}
+	{{ super() }}
+{%- endblock %}
+{% block nav -%}
+	{{ super() }}
+{%- endblock %}
+{% block content -%}
+<div class="content" style="margin: 0 auto; text-align: center">
+    <h1>{{ result.msg }}</h1>
+    <div class="button">
+        <button onclick="window.location.href='{{ url_for("index.index") }}'">返回</button>
+    </div>
+</div>
+{%- endblock %}

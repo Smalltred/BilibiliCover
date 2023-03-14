@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	{% block head -%}
+		<head>
+			<meta charset="UTF-8">
+			<title>{% block title %}{% endblock %} - bilibili封面提取工具</title>
+			<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+			<meta name="referrer" content="never">
+			<link rel="icon" href={{ url_for("static", filename = "images/index.ico") }}>
+			<link rel="stylesheet" href={{ url_for("static", filename = "css/style.css") }}>
+			<script type="text/javascript" src={{ url_for("static", filename = "js/download.js") }}></script>
+			<script type="text/javascript" src={{ url_for("static", filename = "js/scroll.js") }}></script>
+		</head>
+	{%- endblock %}
+</head>
+<body>
+{% block nav -%}
+	<div class="nav">
+		<div class="front">
+			<ul>
+				<li><a href="{{ url_for("index.index") }}">主页</a></li>
+				<li><a href="{{ url_for("index.api_page") }}" target="_blank">接口</a></li>
+				<li><a href="{{ url_for("index.download") }}" target="_blank">下载</a></li>
+				<li><a href="{{ url_for("index.index_page") }}" target="_blank">关于</a></li>
+			</ul>
+		</div>
+	</div>
+{%- endblock %}
+{% block content -%}{%- endblock %}
+{% block buttonBox -%}
+
+{% endblock -%}
+{% block tookBox -%}
+	<div class="tool">
+		<button class="back_top" onclick="scrollToTop()"><span>顶部</span></button>
+		<button class="back_index" onclick="location.assign('{{ url_for("index.index") }}')"><span>返回</span></button>
+	</div>
+{%- endblock %}
+</body>
+</html>
