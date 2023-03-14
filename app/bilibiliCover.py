@@ -329,3 +329,4 @@ class BilibiliCover:
             print("错误 {}".format(e))
             error = {"code": 403, "msg": "这好像不是B站的链接哦~"}
             return error
+
