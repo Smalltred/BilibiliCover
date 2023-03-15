@@ -1,16 +1,38 @@
-{% extends "base.html" %}
-{% block title -%}{{ result.title }}{%- endblock %}
-{% block head -%}
-	{{ super() }}
-{%- endblock %}
-{% block nav -%}
-	{{ super() }}
-{%- endblock %}
-{% block content -%}
-<div class="content" style="margin: 0 auto; text-align: center">
-    <h1>{{ result.msg }}</h1>
-    <div class="button">
-        <button onclick="window.location.href='{{ url_for("index.index") }}'">返回</button>
-    </div>
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<title>bilibili封面提取工具</title>
+	<link rel="icon" href={{ url_for("static", filename = "images/index.ico") }}>
+	<link rel="stylesheet" href={{ url_for("static", filename = "css/style.css") }}>
+</head>
+<body>
+<div class="w">
+	<div class="container">
+		<div class="nav">
+			<div class="front">
+				<ul>
+					<li><a href="{{ url_for("index.index") }}">主页</a></li>
+					<li><a href="{{ url_for("index.api_page") }}" target="_blank">接口</a></li>
+					<li><a href="{{ url_for("index.download") }}" target="_blank">下载</a></li>
+					<li><a href="{{ url_for("index.index_page") }}" target="_blank">关于</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="content">
+			<div class="title">
+				<h1 style="text-align: center">{{ result.msg }}</h1>
+			</div>
+			<div class="button">
+				<button onclick="window.location.href='{{ url_for("index.index") }}'">返回</button>
+			</div>
+		</div>
+		<div class="footer">
+			<p>站长邮箱: <a href="/app/static">admin@hecady.com</a></p>
+		</div>
+	</div>
 </div>
-{%- endblock %}
+</div>
+<script type="text/javascript" src={{ url_for("static", filename = "js/form-validation.js") }}></script>
+</body>
+</html>
