@@ -20,6 +20,7 @@ class BilibiliCover:
     ss_api = "https://api.bilibili.com/pgc/view/web/season?season_id="
     md_api = "https://api.bilibili.com/pgc/review/user?media_id="
     md_all_api = "https://api.bilibili.com/pgc/web/season/section?season_id="
+    id_type = None
 
     def __init__(self, content):
         self.content = content
@@ -34,6 +35,7 @@ class BilibiliCover:
             return self.regexId(self.content)
 
     def regexId(self, string):
+        id_type = None
         bv_id = self.regexBv(string)
         av_id = self.regexAv(string)
         ep_id = self.regexEp(string)
@@ -41,20 +43,17 @@ class BilibiliCover:
         md_id = self.regexMd(string)
         if bv_id:
             id_type = "bv"
-            return bv_id, id_type
         elif av_id:
             id_type = "bv"
             bv_id = biliBV.encode(av_id)
-            return bv_id, id_type
         elif ep_id:
             id_type = "ep"
-            return ep_id, id_type
         elif ss_id:
             id_type = "ss"
-            return ss_id, id_type
         elif md_id:
             id_type = "md"
-            return md_id, id_type
+        self.id_type = id_type
+        return locals()[f"{id_type}_id"]
 
     @staticmethod
     def regexBv(string):
@@ -115,7 +114,7 @@ class BilibiliCover:
                         "url": self.url + vd_bvid,
                     }
                     data.append(temp)
-                result = {"code": 200, "msg": "success", "data": data}
+                result = {"code": 200, "msg": "success", "self.id_type": self.id_type, "data": data}
                 return result
         # 单p判断
         else:
@@ -124,7 +123,7 @@ class BilibiliCover:
             vd_cover = vd_data.get("pic")
             vd_bvid = vd_data.get("bvid")
             vd_avid = vd_data.get("aid")
-            result = {"code": 200, "msg": "success", "data": {
+            result = {"code": 200, "msg": "success", "id_type": self.id_type, "data": {
                 "title": vd_title,
                 "image": vd_cover,
                 "bvid": vd_bvid,
@@ -150,7 +149,7 @@ class BilibiliCover:
                     ep_bvid = eps.get("bvid")
                     ep_avid = eps.get("aid")
                     ep_url = eps.get("share_url")
-                    result = {"code": 200, "msg": "success", "data": {
+                    result = {"code": 200, "msg": "success", "id_type": self.id_type, "data": {
                         "title": ep_title,
                         "image": ep_cover,
                         "bvid": ep_bvid,
@@ -168,7 +167,7 @@ class BilibiliCover:
                         ep_pv_bvid = pv.get("bvid")
                         ep_pv_avid = pv.get("aid")
                         ep_pv_url = pv.get("share_url")
-                        result = {"code": 200, "msg": "success", "data": {
+                        result = {"code": 200, "msg": "success", "id_type": self.id_type, "data": {
                             "title": ep_pv_title,
                             "image": ep_pv_cover,
                             "bvid": ep_pv_bvid,
@@ -191,7 +190,7 @@ class BilibiliCover:
                                 ep_bvid = eps.get("bvid")
                                 ep_avid = eps.get("aid")
                                 ep_url = eps.get("share_url")
-                                result = {"code": 200, "msg": "success", "data": {
+                                result = {"code": 200, "msg": "success", "id_type": self.id_type, "data": {
                                     "title": ep_title,
                                     "image": ep_cover,
                                     "bvid": ep_bvid,
@@ -209,7 +208,7 @@ class BilibiliCover:
                         ep_bvid = pv.get("bvid")
                         ep_avid = pv.get("aid")
                         ep_url = pv.get("share_url")
-                        data = {"code": 200, "msg": "success", "data": {
+                        data = {"code": 200, "msg": "success", "id_type": self.id_type, "data": {
                             "title": ep_title,
                             "image": ep_cover,
                             "bvid": ep_bvid,
@@ -224,8 +223,8 @@ class BilibiliCover:
         response = requests.get(self.md_api + md_id).json()
         ssid = response.get("result").get("media").get("season_id")
         title = response.get("result").get("media").get("title")
-        md_cover = response.get("result").get("media").get("cover")
-        md_url = response.get("result").get("media").get("share_url")
+        cover = response.get("result").get("media").get("cover")
+        url = response.get("result").get("media").get("share_url")
         eps_data = requests.get(self.md_all_api + str(ssid)).json()
         if eps_data.get("result").get("main_section") is not None:
             episodes_data = eps_data.get("result").get("main_section").get("episodes")
@@ -265,8 +264,8 @@ class BilibiliCover:
                         }
 
                         ep_ls.append(ep_dt)
-                    data = {"code": 200, "msg": "success",
-                            "data": {"title": title, "cover": md_cover, "url": md_url, "states": 1, "eps": ep_ls,
+                    data = {"code": 200, "msg": "success", "id_type": self.id_type,
+                            "data": {"md_title": title, "md_cover": cover, "md_url": url, "states": 1, "eps": ep_ls,
                                      "pvs": ep_pv_ls}}
                     return data
             else:
@@ -286,8 +285,8 @@ class BilibiliCover:
                         "volume": ep_volume,
                     }
                     ep_ls.append(ep_dt)
-                result = {"code": 200, "msg": "success",
-                          "data": {"title": title, "cover": md_cover, "url": md_url, "states": 1, "eps": ep_ls}}
+                result = {"code": 200, "msg": "success", "id_type": self.id_type,
+                          "data": {"md_title": title, "md_cover": cover, "md_url": url, "states": 1, "eps": ep_ls}}
 
                 return result
         else:
@@ -310,23 +309,22 @@ class BilibiliCover:
                             "avid": self.av + str(ep_pv_avid),
                         }
                         ep_pv_ls.append(ep_pv_dt)
-                    result = {"code": 200, "msg": "success",
-                              "data": {"title": title, "cover": md_cover, "url": md_url, "states": 0, "pvs": ep_pv_ls}}
+                    result = {"code": 200, "msg": "success", "id_type": self.id_type,
+                              "data": {"md_title": title, "md_cover": cover, "md_url": url, "states": 0, "pvs": ep_pv_ls}}
                     return result
 
     def get_cover(self):
         try:
-            video_id, id_type = self.get_video_id()
-            if id_type == "bv":
+            video_id = self.get_video_id()
+            if self.id_type == "bv":
                 return self.handleBvResult(video_id)
-            elif id_type == "ss":
+            elif self.id_type == "ss":
                 return self.handleSsResult(video_id)
-            elif id_type == "ep":
+            elif self.id_type == "ep":
                 return self.handleEpResult(video_id)
-            elif id_type == "md":
+            elif self.id_type == "md":
                 return self.handleMdResult(video_id)
         except TypeError as e:
             print("错误 {}".format(e))
             error = {"code": 403, "msg": "这好像不是B站的链接哦~"}
             return error
-

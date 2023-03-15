@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title -%}{{ result.title }}{%- endblock %}
+{% block title -%}{{ result.md_title }}{%- endblock %}
 {% block head -%}
 	{{ super() }}
 {%- endblock %}
@@ -9,11 +9,11 @@
 {% block content -%}
 <div class="img-content" id="top">
     <div class="img-title">
-        <p><a href="{{ result.url }}" target="_blank">{{ result.title }}</a></p>
-        <img src="{{ result.cover }}" alt="{{ result.title }}">
+        <p><a href="{{ result.md_url }}" target="_blank">{{ result.md_title }}</a></p>
+        <img src="{{ result.md_cover }}" alt="{{ result.md_title }}">
         <div class="button">
-            <button onclick="downloadImage('{{ result.cover }}')">下载</button>
-            <button onclick="window.open('{{ result.cover }}')">查看</button>
+            <button onclick="downloadImage('{{ result.md_cover }}')">下载</button>
+            <button onclick="window.open('{{ result.md_cover }}')">查看</button>
         </div>
     </div>
     <div class="img-data">

@@ -24,7 +24,7 @@
                 <h1>bilibili封面提取工具</h1>
                 <p>小技巧: 粘贴B站APP里的分享链或者网页复制的视频地址都可以以哦</p>
             </div>
-            <form action="{{ url_for("index.handleResult") }}" method="post" class="form" id="form">
+            <form action="{{ url_for("index.index") }}" method="post" class="form" id="form">
                 <input type="text" value="" class="form text" name="text" autocomplete="off" id="content"><button class="form btn" id="submit-button">解析</button>
             </form>
         </div>
