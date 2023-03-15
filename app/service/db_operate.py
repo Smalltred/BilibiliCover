@@ -6,7 +6,6 @@
 # @Software: PyCharm
 # @Blog    : https://www.hecady.com
 from flask import request
-
 from app.models.db import VdCover, MdCovers
 from app import db
 from app.service.bilibiliCover import BilibiliCover
