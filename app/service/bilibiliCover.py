@@ -36,6 +36,7 @@ class BilibiliCover:
 
     def regexId(self, string):
         id_type = None
+        b_id = None
         bv_id = self.regexBv(string)
         av_id = self.regexAv(string)
         ep_id = self.regexEp(string)
@@ -43,17 +44,22 @@ class BilibiliCover:
         md_id = self.regexMd(string)
         if bv_id:
             id_type = "bv"
+            b_id = bv_id
         elif av_id:
             id_type = "bv"
             bv_id = biliBV.encode(av_id)
+            b_id = bv_id
         elif ep_id:
             id_type = "ep"
+            b_id = ep_id
         elif ss_id:
             id_type = "ss"
+            b_id = ss_id
         elif md_id:
             id_type = "md"
+            b_id = md_id
         self.id_type = id_type
-        return locals()[f"{id_type}_id"]
+        return b_id
 
     @staticmethod
     def regexBv(string):
