@@ -5,8 +5,8 @@
 # @FileName: routes.py
 # @Software: PyCharm
 # @Blog    : https://www.hecady.com
-from flask import jsonify, render_template, request, abort, redirect, url_for, Blueprint
-from app.bilibiliCover import BilibiliCover
+from flask import jsonify, render_template, request, abort, redirect, Blueprint
+from app.service.bilibiliCover import BilibiliCover
 
 index_bp = Blueprint("index", __name__, "")
 

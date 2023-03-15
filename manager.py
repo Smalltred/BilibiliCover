@@ -10,10 +10,8 @@ from flask_script import Manager
 from app import create_app
 
 app = create_app()
-# 数据库迁移
+
 manager = Manager(app)
 
-
-@manager.command
-def start():
-    app.run(port=80)
+if __name__ == '__main__':
+    manager.run()
