@@ -7,7 +7,7 @@
 # @Blog    ：https://www.hecady.com
 import requests
 import re
-import biliBV
+from app.service.biliBV import encode
 
 
 # noinspection PyBroadException
@@ -47,7 +47,7 @@ class BilibiliCover:
             b_id = bv_id
         elif av_id:
             id_type = "bv"
-            bv_id = biliBV.encode(av_id)
+            bv_id = encode(av_id)
             b_id = bv_id
         elif ep_id:
             id_type = "ep"
@@ -244,7 +244,7 @@ class BilibiliCover:
                         ep_pv_cover = ep_pv_data.get("cover")
                         ep_pv_url = ep_pv_data.get("share_url")
                         ep_pv_avid = ep_pv_data.get("aid")
-                        ep_pv_bvid = biliBV.encode(ep_pv_avid)
+                        ep_pv_bvid = encode(ep_pv_avid)
                         ep_pv_dt = {
                             "title": ep_pv_title,
                             "image": ep_pv_cover,
@@ -258,7 +258,7 @@ class BilibiliCover:
                         ep_cover = ep_data.get("cover")
                         ep_url = ep_data.get("share_url")
                         ep_avid = ep_data.get("aid")
-                        ep_bvid = biliBV.encode(ep_avid)
+                        ep_bvid = encode(ep_avid)
                         ep_volume = ep_data.get("title")
                         ep_dt = {
                             "title": ep_title,
@@ -280,7 +280,7 @@ class BilibiliCover:
                     ep_cover = ep_data.get("cover")
                     ep_url = ep_data.get("share_url")
                     ep_avid = ep_data.get("aid")
-                    ep_bvid = biliBV.encode(ep_avid)
+                    ep_bvid = encode(ep_avid)
                     ep_volume = ep_data.get("title")
                     ep_dt = {
                         "title": ep_title,
@@ -306,7 +306,7 @@ class BilibiliCover:
                         ep_pv_cover = ep_pv_data.get("cover")
                         ep_pv_url = ep_pv_data.get("share_url")
                         ep_pv_avid = ep_pv_data.get("aid")
-                        ep_pv_bvid = biliBV.encode(ep_pv_avid)
+                        ep_pv_bvid = encode(ep_pv_avid)
                         ep_pv_dt = {
                             "title": ep_pv_title,
                             "image": ep_pv_cover,
