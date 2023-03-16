@@ -16,7 +16,7 @@ Python3.9 基于Flask的轻量级服务
 pip install -r requirements.txt
 git clone https://github.com/Smalltred/BilibiliCover.git
 cd BilibiliCover
-python3 app.py
+python3 manage.py runserver
 ```
 
 # API
@@ -49,7 +49,4 @@ https://localhost/api?b=https://www.bilibili.com/video/BV19d4y1t7sS/
 }
 ```
 
-# 注意
-
-启动服务器默认端口为80，如需修改请打开`app.py`修改
 
