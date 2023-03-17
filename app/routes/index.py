@@ -7,8 +7,7 @@
 # @Blog    : https://www.hecady.com
 import threading
 from flask import jsonify, render_template, request, abort, redirect, Blueprint
-from app.service.bilibiliCover import BilibiliCover
-from app.service.db_operate import DataPreprocessor
+from app.service import BilibiliCover, DataPreprocessor
 
 index_bp = Blueprint("index", __name__, "")
 

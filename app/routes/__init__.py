@@ -5,3 +5,4 @@
 # @FileName: __init__.py
 # @Software: PyCharm
 # @Blog    : https://www.hecady.com
+from .index import index_bp
