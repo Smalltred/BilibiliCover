@@ -33,8 +33,8 @@ def bilibiliApi():
     if len(get_data) == 0:
         result = {"code": 404, "msg": "请求不合法"}
         return jsonify(result)
-    url = get_data.get("b")
-    if 'b' not in get_data or not get_data['b']:
+    url = get_data.get("url")
+    if 'url' not in get_data or not get_data['url']:
         result = {"code": 404, "msg": "请求不合法"}
         return result
     bilibili = BilibiliCover(url)
