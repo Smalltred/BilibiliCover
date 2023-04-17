@@ -5,3 +5,5 @@
 # @FileName: __init__.py
 # @Software: PyCharm
 # @Blog    : https://www.hecady.com
+from .api import api
+from .index import index
