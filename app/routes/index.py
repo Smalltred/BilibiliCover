@@ -7,7 +7,8 @@
 # @Blog    : https://www.hecady.com
 import threading
 from flask import jsonify, render_template, request, abort, redirect, Blueprint
-from app.service import BilibiliCover, DataPreprocessor
+from app.service.bilibiliCover import BilibiliCover
+from app.service.db_operate import DataPreprocessor
 
 index_bp = Blueprint("index", __name__, "")
 
@@ -33,8 +34,8 @@ def bilibiliApi():
     if len(get_data) == 0:
         result = {"code": 404, "msg": "请求不合法"}
         return jsonify(result)
-    url = get_data.get("url")
-    if 'url' not in get_data or not get_data['url']:
+    url = get_data.get("b")
+    if 'b' not in get_data or not get_data['b']:
         result = {"code": 404, "msg": "请求不合法"}
         return result
     bilibili = BilibiliCover(url)

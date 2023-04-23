@@ -7,7 +7,8 @@
 # @Blog    ：https://www.hecady.com
 import requests
 import re
-from .biliBV import encode
+from app.service.biliBV import encode
+
 
 # noinspection PyBroadException
 

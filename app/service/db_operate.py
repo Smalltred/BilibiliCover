@@ -8,7 +8,7 @@
 from flask import request
 from app.models.db import VdCover, MdCovers
 from app import db
-from .bilibiliCover import BilibiliCover
+from app.service.bilibiliCover import BilibiliCover
 
 
 class DataPreprocessor(BilibiliCover):
