@@ -13,7 +13,7 @@ from app import cache
 
 obj = BilibiliCover
 
-api = Blueprint("api", __name__)
+api = Blueprint('api', __name__, static_url_path='')
 
 
 @api.after_request
@@ -32,7 +32,7 @@ def make_cache_key(*args, **kwargs):
     return (path + args).encode('utf-8')
 
 
-@api.route("/", methods=["GET", "POST"])
+@api.route("", methods=["GET", "POST"])
 @cache.cached(timeout=60 * 60 * 24, key_prefix=make_cache_key)
 def index():
     data = request.args.get("url")

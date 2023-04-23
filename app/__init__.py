@@ -20,7 +20,6 @@ def create_app():
     cache.init_app(app)
 
     # 加载蓝图
-    from app.routes import api, index
-    app.register_blueprint(api, url_prefix='/api')
-    app.register_blueprint(index, url_prefix='/')
+    from app.routes import api
+    app.register_blueprint(api, url_prefix='/v1/bilibili')
     return app

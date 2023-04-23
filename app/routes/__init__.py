@@ -6,4 +6,3 @@
 # @Software: PyCharm
 # @Blog    : https://www.hecady.com
 from .api import api
-from .index import index

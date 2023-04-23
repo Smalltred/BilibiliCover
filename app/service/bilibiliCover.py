@@ -257,7 +257,6 @@ class BilibiliCover(BiliBv):
             # 添加新键值对
             video_info["bvid"] = video.get("bvid")
             video_info["url"] = url + video.get("bvid")
-            video_info["cover"] = "https://www.bilibili.com/video/" + video_info["cover"]
             video_info["avid"] = f"av{video_info['avid']}"
 
             return video_info
@@ -312,13 +311,12 @@ class BilibiliCover(BiliBv):
         # 创建键名映射关系字典
         poster_key_map = {"link": "poster_url", "cover": "poster_cover", "season_title": "poster_title"}
 
-        video_key = {"link", "cover", "bvid", "aid", "long_title", "title"}
-        video_key_map = {"link": "url", "aid": "avid", "long_title": "title"}
+        video_key = {"link", "cover", "bvid", "aid", "share_copy"}
+        video_key_map = {"link": "url", "aid": "avid", "share_copy": "title"}
 
         def handleEpResult(video_info):
             if video_info:
-                ep_video_info = [{video_key_map.get(key, key): j.get(key) for key in video_key} | {"volume": i + 1} for
-                                 i, j in enumerate(video_info)]
+                ep_video_info = [{video_key_map.get(key, key): j.get(key) for key in video_key} for j in video_info]
                 return ep_video_info
             return False
 
