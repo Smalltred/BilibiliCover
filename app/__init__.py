@@ -21,5 +21,5 @@ def create_app():
 
     # 加载蓝图
     from app.routes import api
-    app.register_blueprint(api, url_prefix='/v1/bilibili')
+    app.register_blueprint(api, url_prefix='')
     return app
