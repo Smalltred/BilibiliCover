@@ -5,3 +5,4 @@
 # @FileName: __init__.py.py
 # @Software: PyCharm
 # @Blog    : https://www.hecady.com
+from .bilibiliCover import BilibiliCover

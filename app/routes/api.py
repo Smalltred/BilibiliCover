@@ -13,7 +13,7 @@ from app import cache
 
 obj = BilibiliCover
 
-api = Blueprint('api', __name__, static_url_path='')
+api = Blueprint('api', __name__, static_url_path='/')
 
 
 @api.after_request
