@@ -1,9 +1,38 @@
 <!--
-  当前解析的封面卡片:左侧大封面,右侧信息(标题/关键字段/简介/操作按钮)
+  C 布局结果卡(banner 风格,无持久化)
+  - 操作按钮组在封面之上
+  - 封面 banner 铺满容器宽度,16:9
+  - 元信息横排(UP 主 · 时长 · 播放 · 发布 · BV · AV)
+  - 简介完整展开
+  - 按钮右对齐,outline 风格
 -->
 <template>
   <article class="card">
-    <!-- 左侧:封面 -->
+    <!-- 操作按钮(在封面之上) -->
+    <div class="card-actions">
+      <button class="action-btn action-primary" @click="handleCopy">
+        {{ copyLabel }}
+      </button>
+      <a
+        :href="data.cover"
+        :download="filename"
+        target="_blank"
+        rel="noopener"
+        class="action-btn"
+      >下载</a>
+      <a
+        v-if="data.url"
+        :href="data.url"
+        target="_blank"
+        rel="noopener"
+        class="action-btn"
+      >B 站 ↗</a>
+      <button class="action-btn" @click="$emit('reset')">
+        重新解析
+      </button>
+    </div>
+
+    <!-- 封面(banner) -->
     <div class="card-cover">
       <img
         :src="data.cover"
@@ -15,61 +44,32 @@
       <div v-if="data.type === MOCK_TYPE" class="card-mock-badge">演示数据</div>
     </div>
 
-    <!-- 右侧:信息 -->
+    <!-- 信息 -->
     <div class="card-info">
       <h3 class="card-title">{{ data.title || '无标题' }}</h3>
 
       <dl class="card-meta">
-        <div v-if="data.bvid" class="meta-row">
-          <dt>BV 号</dt>
-          <dd class="mono">{{ data.bvid }}</dd>
-        </div>
-        <div v-if="data.avid" class="meta-row">
-          <dt>AV 号</dt>
-          <dd class="mono">{{ data.avid }}</dd>
-        </div>
-        <div v-if="data.author" class="meta-row">
-          <dt>UP 主</dt>
-          <dd>{{ data.author }}</dd>
-        </div>
-        <div v-if="data.play" class="meta-row">
-          <dt>播放量</dt>
-          <dd>{{ formatStat(data.play) }}</dd>
-        </div>
-        <div v-if="data.duration" class="meta-row">
-          <dt>时长</dt>
-          <dd>{{ formatDuration(data.duration) }}</dd>
-        </div>
-        <div v-if="data.pubdate" class="meta-row">
-          <dt>发布时间</dt>
-          <dd>{{ formatTime(data.pubdate) }}</dd>
-        </div>
+        <span v-if="data.author" class="meta-item">
+          <span class="meta-key">UP 主</span>{{ data.author }}
+        </span>
+        <span v-if="data.duration" class="meta-item">
+          <span class="meta-key">时长</span>{{ formatDuration(data.duration) }}
+        </span>
+        <span v-if="data.play" class="meta-item">
+          <span class="meta-key">播放</span>{{ formatStat(data.play) }}
+        </span>
+        <span v-if="data.pubdate" class="meta-item">
+          <span class="meta-key">发布</span>{{ formatTime(data.pubdate) }}
+        </span>
+        <span v-if="data.bvid" class="meta-item meta-mono">
+          <span class="meta-key">BV</span>{{ data.bvid }}
+        </span>
+        <span v-if="data.avid" class="meta-item meta-mono">
+          <span class="meta-key">AV</span>{{ data.avid }}
+        </span>
       </dl>
 
       <p v-if="data.description" class="card-desc">{{ data.description }}</p>
-
-      <div class="card-actions">
-        <button class="action-btn action-primary" @click="handleCopy">
-          {{ copyLabel }}
-        </button>
-        <a
-          :href="data.cover"
-          :download="filename"
-          target="_blank"
-          rel="noopener"
-          class="action-btn action-secondary"
-        >下载</a>
-        <a
-          v-if="data.url"
-          :href="data.url"
-          target="_blank"
-          rel="noopener"
-          class="action-btn action-ghost"
-        >打开 B 站 ↗</a>
-        <button class="action-btn action-ghost" @click="$emit('reset')">
-          重新解析
-        </button>
-      </div>
     </div>
   </article>
 </template>
@@ -105,23 +105,21 @@ async function handleCopy() {
 </script>
 
 <style scoped>
+/* ===== 卡片布局(banner 风格:上下结构)===== */
 .card {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-@media (max-width: 768px) {
-  .card { grid-template-columns: 1fr; }
-}
-
-/* ----- 封面 ----- */
+/* ----- 封面(banner:铺满容器宽度,16:9)----- */
 .card-cover {
   position: relative;
   border-radius: var(--radius);
   overflow: hidden;
   aspect-ratio: 16 / 9;
   background: var(--bg-elevated);
+  width: 100%;
 }
 
 .card-img {
@@ -147,6 +145,7 @@ async function handleCopy() {
 .card-info {
   display: flex;
   flex-direction: column;
+  width: 100%;
   min-width: 0;
 }
 
@@ -157,69 +156,62 @@ async function handleCopy() {
   color: var(--text-primary);
   line-height: 1.4;
   word-break: break-word;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
+/* ===== 元信息(横排,key + value)===== */
 .card-meta {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
   margin: 0 0 16px;
-  padding: 14px;
+  padding: 12px 16px;
   background: var(--bg-elevated);
   border-radius: var(--radius);
+  font-size: 13px;
 }
 
-.meta-row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-primary);
 }
 
-.meta-row dt {
+.meta-key {
   font-size: 11px;
   color: var(--text-muted);
-  margin: 0;
+  padding: 1px 6px;
+  background: var(--bg-secondary);
+  border-radius: 3px;
+  letter-spacing: 0.04em;
 }
 
-.meta-row dd {
-  font-size: 13px;
-  color: var(--text-primary);
-  margin: 0;
-  word-break: break-all;
-}
-
-.meta-row dd.mono {
-  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas,
-    'Liberation Mono', Menlo, monospace;
+.meta-mono {
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, monospace;
   font-size: 12px;
 }
 
+/* ===== 简介(完整展开)===== */
 .card-desc {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-secondary);
-  margin: 0 0 16px;
-  padding: 12px;
+  margin: 0;
+  padding: 16px;
   background: var(--bg-primary);
   border-radius: var(--radius);
   border-left: 3px solid var(--accent);
   white-space: pre-wrap;
   word-break: break-word;
-  max-height: 160px;
-  overflow-y: auto;
   line-height: 1.7;
 }
 
+/* ===== 操作按钮(右对齐)===== */
 .card-actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: auto;
+  justify-content: flex-end;
 }
 
 .action-btn {
@@ -227,7 +219,9 @@ async function handleCopy() {
   align-items: center;
   justify-content: center;
   padding: 10px 18px;
-  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   font-size: 13px;
   font-weight: 500;
@@ -236,37 +230,20 @@ async function handleCopy() {
   font-family: inherit;
   white-space: nowrap;
   transition: all var(--transition);
-  min-width: 100px;
+}
+
+.action-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .action-primary {
-  background: var(--accent);
-  color: white;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .action-primary:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-}
-
-.action-secondary {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-}
-
-.action-secondary:hover {
-  border-color: var(--accent);
-}
-
-.action-ghost {
-  background: transparent;
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-}
-
-.action-ghost:hover {
-  color: var(--text-primary);
-  border-color: var(--text-secondary);
+  background: var(--accent);
+  color: white;
 }
 </style>
