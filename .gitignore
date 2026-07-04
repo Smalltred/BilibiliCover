@@ -3,6 +3,10 @@
 dev.err.log
 dev.out.log
 
+# 打包产物(脚本会生成,不入库)
+releases/
+*.zip
+
 # OS / IDE
 .DS_Store
 .vscode/
