@@ -1,0 +1,18 @@
+# 后端运行时日志(避免污染 git status)
+*.log
+dev.err.log
+dev.out.log
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Node.js(backend 内已有,但根目录兜底)
+node_modules/
+
+# Python(flask-legacy 分支历史,主分支不需要)
+__pycache__/
+*.pyc
+.venv/
+venv/

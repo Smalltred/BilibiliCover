@@ -1,0 +1,117 @@
+/* ===== 全局通用组件类 =====
+   跨组件复用的 UI 类(.btn / .input / .spinner / .state-center)
+   必须放在全局 CSS,不能 scoped,否则其他组件用不到。
+   组件私有的样式(.result / .cover-wrap / .info 等)放在各自 .vue 的 <style scoped>。
+*/
+
+/* ----- 按钮 ----- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition);
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-light);
+}
+
+.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--accent);
+}
+
+.btn-light {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0d1117;
+  font-weight: 600;
+  padding: 8px 14px;
+  font-size: 12px;
+  box-shadow: var(--shadow);
+}
+
+.btn-light:hover {
+  background: white;
+  transform: translateY(-1px);
+}
+
+/* ----- Loading 旋转 ----- */
+.spinner {
+  width: 36px;
+  height: 36px;
+  margin: 0 auto 16px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ----- 状态展示(空 / 错误 / loading)----- */
+.state-center {
+  text-align: center;
+  padding: 60px 20px;
+  margin: auto;
+}
+
+.state-icon {
+  font-size: 48px;
+  margin: 0 0 12px;
+}
+
+.state-msg {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 20px;
+}
+
+/* ----- 滚动条统一样式 ----- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

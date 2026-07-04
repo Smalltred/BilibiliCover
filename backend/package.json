@@ -1,0 +1,19 @@
+{
+  "name": "bilibili-cover-backend",
+  "version": "0.1.0",
+  "description": "B 站视频/番剧封面解析 API - Node.js 版",
+  "private": true,
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "start:prod": "node scripts/start-prod.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

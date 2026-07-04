@@ -1,0 +1,39 @@
+/* ===== 设计令牌(tokens) =====
+   整个项目的颜色 / 字体 / 间距 / 圆角 / 阴影变量都集中在这里,
+   组件用 var(--xxx) 引用,改一处全站生效。
+   本次重构承诺配色不变,所有值与重构前完全一致。
+*/
+:root {
+  /* 背景 */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-elevated: #1c2128;
+
+  /* 边框 / 分隔 */
+  --border: #30363d;
+
+  /* 文本 */
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+
+  /* 品牌色(B 站粉 + B 站蓝) */
+  --accent: #fb7299;
+  --accent-hover: #ff85ad;
+  --accent-blue: #00aeec;
+
+  /* 语义色(预留,目前用得少) */
+  --success: #3fb950;
+  --danger: #f85149;
+
+  /* 阴影 */
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  /* 圆角 */
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  /* 过渡 */
+  --transition: 0.2s ease;
+}
