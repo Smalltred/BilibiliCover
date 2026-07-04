@@ -1,4 +1,0 @@
-flask_script
-flask_sqlalchemy
-flask
-requests
