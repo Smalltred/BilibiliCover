@@ -87,33 +87,14 @@ npm run stop       # 停止
 tail -f backend/data/server.log   # 看日志
 ```
 
-### 前端热更新(零停服,无需重启 Node)
+### 前端热更(改完前端代码直接覆盖 dist/)
 
-只改了 `frontend/src/...` 下的代码(组件 / 样式 / 文案),**不需要重启 Node 进程**,
-直接替换生产环境的 `frontend/dist/` 即可 —— 后端用 `express.static` 托管,
-下次 HTTP 请求就是新文件。
+后端用 `express.static(frontend/dist)` 托管前端静态资源,**不需要重启 Node 进程**。
+改完 `frontend/src/...` 后,本地跑一次 `npm run build:fe`,
+然后把 `frontend/dist/` 整个目录覆盖到服务器的对应位置,刷新浏览器即可。
 
-```bash
-# 本地:只构建前端 + 打小包(37KB,只含 dist/)
-python scripts/build-release.py --frontend-only --bump
-# 产物:releases/blibilicover-frontend-vX.Y.Z.zip
-
-# 服务器:上传 zip 后跑一条命令
-bash update-frontend.sh blibilicover-frontend-vX.Y.Z.zip
-# 自动:校验 → 备份旧 dist → 覆盖 → 健康检查 → 提示刷新浏览器
-# 不重启 Node,后端代码保持不变
-```
-
-回滚(如有需要):
-```bash
-rm -rf frontend/dist
-mv .staging/prev-dist-<时间戳> frontend/dist
-```
-
-清理超过 7 天的旧备份:
-```bash
-find .staging -maxdepth 1 -name 'prev-dist-*' -mtime +7 -exec rm -rf {} +
-```
+适用:组件 / 样式 / 文案调整。
+不适用:后端代码 / `server.js` / 部署脚本 / `package.json` 变更 —— 这种情况走完整 `bash deploy.sh`。
 
 ## 接口文档
 
