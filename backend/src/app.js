@@ -13,6 +13,8 @@
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const { pickPort } = require('./utils/port');
 const apiRouter = require('./routes/api');
 
@@ -33,13 +35,38 @@ app.use((req, res, next) => {
   next();
 });
 
+// 健康端点(根路径,留给监控/反代探活)
 app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'bilibili-cover', uptime: process.uptime() });
 });
 
-app.use('/', apiRouter);
+// API 路由挂 /api 前缀,前端 fetch('/api/?url=...') 直接对得上
+// 不用 nginx/反代做 /api → / 改写,后端自己扛
+app.use('/api', apiRouter);
 
-// 404 兜底
+// 静态托管前端 dist/(生产宝塔部署用)。
+// dev 模式下 dist/ 不存在,跳过;dev 用 Vite 自带 dev server。
+// 路径相对 backend/src/app.js:../../frontend/dist
+const distDir = path.join(__dirname, '..', '..', 'frontend', 'dist');
+if (fs.existsSync(distDir)) {
+  app.use(
+    express.static(distDir, {
+      // 不强制 cache,宝塔反代一般会自己加 cache-control
+      maxAge: 0,
+    }),
+  );
+  // SPA fallback:任何 GET(非 /api / /health)都回 index.html。
+  // 当前是 hash 路由,理论上不会触发,但留着兼容未来切 history 路由。
+  app.get(/^(?!\/(?:api|health)(?:\/|$)).*/, (_req, res) => {
+    res.sendFile(path.join(distDir, 'index.html'));
+  });
+} else {
+  console.warn(
+    `[static] frontend/dist 不存在(${distDir}),跳过静态托管。dev 模式正常,prod 部署请确认 dist/ 已构建。`,
+  );
+}
+
+// 404 兜底(/api/* 没匹配上的也走这里,返回 JSON 而不是 index.html)
 app.use((req, res) => {
   res.status(404).json({ ok: false, code: 'NOT_FOUND', error: '路由不存在' });
 });
@@ -74,7 +101,9 @@ async function startServer({ random = false } = {}) {
     const server = app.listen(p, '0.0.0.0', () => {
       const finalPort = server.address().port;
       console.log(`[bilibili-cover] listening on http://127.0.0.1:${finalPort}`);
-      console.log(`  试试:  http://127.0.0.1:${finalPort}/?url=BV1xx411c7xx`);
+      console.log(`  网页:  http://127.0.0.1:${finalPort}/`);
+      console.log(`  API:   http://127.0.0.1:${finalPort}/api/?url=BV1xx411c7xx`);
+      console.log(`  健康:  http://127.0.0.1:${finalPort}/health`);
       // 把端口写到磁盘(供生产部署时前端/反代读)
       const fs = require('fs');
       const path = require('path');

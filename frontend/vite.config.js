@@ -32,10 +32,8 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: BACKEND_TARGET,
-        changeOrigin: true,
-        // 把 /api/?url=xxx 改写成 /?url=xxx 转发给后端
-        // 后端 express 路由挂在 / 上,这样 /api 前缀只是前端的语义命名
-        rewrite: (path) => path.replace(/^\/api/, '')
+        changeOrigin: true
+        // 后端把 apiRouter 挂在 /api 下,/api 前缀原样转发即可,不再 rewrite
       }
     }
   },
