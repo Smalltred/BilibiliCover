@@ -33,31 +33,36 @@ blibilicover/
 
 ## 开发模式
 
-两个独立窗口,顺序先 backend 再 frontend:
+根目录有顶层 `package.json`,所有命令统一从根目录跑:
 
 ```bash
-# 窗口 1: 后端(dev 固定 3000)
-cd backend
-npm install
-npm start
+# 一次性装两边依赖
+npm --prefix backend install
+npm --prefix frontend install
 
-# 窗口 2: 前端(Vite 5173,代理 /api → 3000)
-cd frontend
-npm install
-npm run dev
+# 开发:两个独立窗口
+npm run dev:be       # 后端 dev,固定 3000
+npm run dev:fe       # 前端 Vite,5173(代理 /api → 3000)
 ```
 
 打开 `http://localhost:5173`。
 
+也可以直接进子目录跑:
+
+```bash
+cd backend  && npm install && npm start
+cd frontend && npm install && npm run dev
+```
+
 ## 生产部署(宝塔 / 通用 Linux)
 
 ```bash
-# 1. 本地打包(跨平台,纯 Python,无 BOM 问题)
-python scripts/build-release.py
+# 1. 本地打包(根目录跑,跨平台,纯 Python)
+npm run release
 # 产物在 releases/blibilicover-vX.Y.Z.zip
 
-# 1.5 可选:自动 bump 版本号 patch +1
-python scripts/build-release.py --bump
+# 1.5 可选:自动 bump 版本号 patch +1(只改 backend/package.json)
+npm run release:bump
 # 记得手动同步 frontend/package.json 和 VERSION
 
 # 2. 上传 zip 到服务器,解压
@@ -65,7 +70,7 @@ unzip blibilicover-vX.Y.Z.zip
 cd blibilicover-vX.Y.Z
 
 # 3. 一键部署(装依赖 + 后台启动后端)
-bash deploy.sh
+npm run deploy     # 或 bash deploy.sh
 # 输出端口号(如 3187),把端口写进宝塔 nginx 反代
 
 # 4. 宝塔 nginx 站点配置
@@ -76,8 +81,8 @@ bash deploy.sh
 部署后:
 
 ```bash
-bash start.sh    # 重启
-bash stop.sh     # 停止
+npm run start      # 启动
+npm run stop       # 停止
 tail -f backend/data/server.log   # 看日志
 ```
 

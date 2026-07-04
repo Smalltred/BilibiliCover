@@ -1,0 +1,22 @@
+{
+  "name": "blibilicover",
+  "version": "0.1.0",
+  "private": true,
+  "description": "B 站视频/番剧封面提取(Node.js + Express + Vue 3)",
+  "type": "commonjs",
+  "scripts": {
+    "dev:be": "cd backend && npm run dev",
+    "dev:fe": "cd frontend && npm run dev",
+    "build:fe": "cd frontend && npm run build",
+    "build:be": "echo \"后端是纯 Node.js,无需构建,直接 node src/app.js\"",
+    "release": "python scripts/build-release.py",
+    "release:bump": "python scripts/build-release.py --bump",
+    "release:skip-build": "python scripts/build-release.py --skip-build",
+    "deploy": "bash deploy.sh",
+    "start": "bash start.sh",
+    "stop": "bash stop.sh"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
