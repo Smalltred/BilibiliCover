@@ -12,7 +12,7 @@
       <div class="modal-card" role="dialog" aria-modal="true">
         <button class="modal-close" @click="$emit('reset')" aria-label="关闭">×</button>
 
-        <CoverPreviewCard v-if="data" :data="data" />
+        <CoverPreviewCard v-if="data" :data="data" @reset="$emit('reset')" />
         <StateCenter v-else-if="error" variant="error" :error="error" @reset="$emit('reset')" />
       </div>
     </div>

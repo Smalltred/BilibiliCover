@@ -122,6 +122,19 @@ const endpoints = [
   "service": "bilibili-cover",
   "uptime": 1234.56
 }`
+  },
+  {
+    method: 'GET',
+    path: '/download?url=xxx',
+    tryUrl: `${API_PREFIX}/download?url=https://i0.hdslb.com/bfs/archive/example.jpg&filename=cover.jpg`,
+    description: '代理下载 B 站图片,解决浏览器 Referer 防盗链(403)。后端带正确的 Referer 头拉图片,流式转发回客户端。',
+    params: [
+      { name: 'url', type: 'string', required: true, description: 'B 站图片地址(必须是 bilibili.com / hdslb.com 域名)' },
+      { name: 'filename', type: 'string', required: false, description: '下载文件名,默认 cover.jpg' }
+    ],
+    response: `// 二进制图片流,HTTP 头:
+Content-Type: image/jpeg
+Content-Disposition: attachment; filename="cover.jpg"`
   }
 ]
 </script>

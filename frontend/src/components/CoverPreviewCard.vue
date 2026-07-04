@@ -13,13 +13,9 @@
       <button class="action-btn action-primary" @click="handleCopy">
         {{ copyLabel }}
       </button>
-      <a
-        :href="data.cover"
-        :download="filename"
-        target="_blank"
-        rel="noopener"
-        class="action-btn"
-      >下载</a>
+      <button class="action-btn" @click="handleDownload">
+        {{ downloadLabel }}
+      </button>
       <a
         v-if="data.url"
         :href="data.url"
@@ -92,7 +88,9 @@ const filename = computed(() => {
 
 const { copy } = useClipboard()
 const copyLabel = ref('复制封面链接')
+const downloadLabel = ref('下载')
 let resetTimer = null
+let downloadTimer = null
 
 async function handleCopy() {
   const ok = await copy(props.data.cover)
@@ -100,6 +98,32 @@ async function handleCopy() {
   if (resetTimer) clearTimeout(resetTimer)
   resetTimer = setTimeout(() => {
     copyLabel.value = '复制封面链接'
+  }, 1500)
+}
+
+// 走后端代理下载,绕过 B 站 Referer 防盗链
+async function handleDownload() {
+  try {
+    downloadLabel.value = '下载中…'
+    const url = `/api/download?url=${encodeURIComponent(props.data.cover)}&filename=${encodeURIComponent(filename.value)}`
+    const res = await fetch(url)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const blob = await res.blob()
+    const blobUrl = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = blobUrl
+    a.download = filename.value
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(blobUrl)
+    downloadLabel.value = '已下载 ✓'
+  } catch {
+    downloadLabel.value = '下载失败'
+  }
+  if (downloadTimer) clearTimeout(downloadTimer)
+  downloadTimer = setTimeout(() => {
+    downloadLabel.value = '下载'
   }, 1500)
 }
 </script>
@@ -230,6 +254,8 @@ async function handleCopy() {
   font-family: inherit;
   white-space: nowrap;
   transition: all var(--transition);
+  flex: 1 1 0; /* 等宽 4 个按钮均分容器宽度 */
+  min-width: 0;
 }
 
 .action-btn:hover {

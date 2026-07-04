@@ -68,4 +68,61 @@ router.get('/diag', (req, res) => {
   });
 });
 
+// 代理下载 —— 解决 B 站 Referer 防盗链(403)
+//
+// 浏览器直接 <a href="cover.jpg" download> 时,Referer 是当前页(localhost/你的域名),
+// B 站图片服务器会拒绝。走后端代理可带正确的 Referer: bilibili.com。
+//
+// GET /download?url=https://i0.hdslb.com/.../cover.jpg&filename=xxx.jpg
+//   -> 二进制流(Content-Disposition: attachment)
+router.get('/download', async (req, res) => {
+  const url = (req.query.url || '').toString();
+  const filename = (req.query.filename || 'cover.jpg').toString();
+
+  if (!url) {
+    return res.status(400).json({ ok: false, error: '缺少 url 参数' });
+  }
+
+  // 白名单:只允许 B 站域名(防滥用)
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    return res.status(400).json({ ok: false, error: 'url 不合法' });
+  }
+  if (!/(^|\.)(bilibili\.com|hdslb\.com)$/i.test(parsedUrl.hostname)) {
+    return res.status(400).json({ ok: false, error: '只支持 B 站域名' });
+  }
+
+  try {
+    const upstream = await fetch(url, {
+      headers: {
+        Referer: 'https://www.bilibili.com',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
+          '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      },
+      redirect: 'follow',
+    });
+    if (!upstream.ok) {
+      return res.status(502).json({
+        ok: false,
+        error: `上游返回 ${upstream.status}`,
+      });
+    }
+
+    const contentType = upstream.headers.get('content-type') || 'image/jpeg';
+    res.set('Content-Type', contentType);
+    res.set('Content-Disposition', `attachment; filename="${filename}"`);
+    const contentLength = upstream.headers.get('content-length');
+    if (contentLength) res.set('Content-Length', contentLength);
+
+    // 流式转发(避免大图占内存)
+    const { Readable } = require('stream');
+    Readable.fromWeb(upstream.body).pipe(res);
+  } catch (e) {
+    res.status(500).json({ ok: false, error: `下载失败: ${e.message}` });
+  }
+});
+
 module.exports = router;
