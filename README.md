@@ -42,7 +42,7 @@ npm --prefix frontend install
 
 # 开发:两个独立窗口
 npm run dev:be       # 后端 dev,固定 3000
-npm run dev:fe       # 前端 Vite,5173(代理 /api → 3000)
+npm run dev:fe       # 前端 Vite,5172(代理 /api → 3000)
 ```
 
 打开 `http://localhost:5173`。
@@ -61,9 +61,9 @@ cd frontend && npm install && npm run dev
 npm run release
 # 产物在 releases/blibilicover-vX.Y.Z.zip
 
-# 1.5 可选:自动 bump 版本号 patch +1(只改 backend/package.json)
+# 1.5 可选:自动 bump 版本号 patch +1
 npm run release:bump
-# 记得手动同步 frontend/package.json 和 VERSION
+# 自动同步 backend/frontend/根 package.json + VERSION 四处一起 bump
 
 # 2. 上传 zip 到服务器,解压
 unzip blibilicover-vX.Y.Z.zip
@@ -73,9 +73,10 @@ cd blibilicover-vX.Y.Z
 npm run deploy     # 或 bash deploy.sh
 # 输出端口号(如 3187),把端口写进宝塔 nginx 反代
 
-# 4. 宝塔 nginx 站点配置
-#   root <解压路径>/frontend/dist
-#   location /api/  -> proxy_pass http://127.0.0.1:<端口>/
+# 4. 宝塔传统 Node 项目配置(无需 nginx 反代)
+#   启动文件: server.js
+#   端口: 自定义(默认 3000)
+#   后端自己 express.static 托管 frontend/dist/(见 backend/src/app.js)
 ```
 
 部署后:
@@ -84,6 +85,34 @@ npm run deploy     # 或 bash deploy.sh
 npm run start      # 启动
 npm run stop       # 停止
 tail -f backend/data/server.log   # 看日志
+```
+
+### 前端热更新(零停服,无需重启 Node)
+
+只改了 `frontend/src/...` 下的代码(组件 / 样式 / 文案),**不需要重启 Node 进程**,
+直接替换生产环境的 `frontend/dist/` 即可 —— 后端用 `express.static` 托管,
+下次 HTTP 请求就是新文件。
+
+```bash
+# 本地:只构建前端 + 打小包(37KB,只含 dist/)
+python scripts/build-release.py --frontend-only --bump
+# 产物:releases/blibilicover-frontend-vX.Y.Z.zip
+
+# 服务器:上传 zip 后跑一条命令
+bash update-frontend.sh blibilicover-frontend-vX.Y.Z.zip
+# 自动:校验 → 备份旧 dist → 覆盖 → 健康检查 → 提示刷新浏览器
+# 不重启 Node,后端代码保持不变
+```
+
+回滚(如有需要):
+```bash
+rm -rf frontend/dist
+mv .staging/prev-dist-<时间戳> frontend/dist
+```
+
+清理超过 7 天的旧备份:
+```bash
+find .staging -maxdepth 1 -name 'prev-dist-*' -mtime +7 -exec rm -rf {} +
 ```
 
 ## 接口文档
@@ -113,8 +142,8 @@ tail -f backend/data/server.log   # 看日志
 
 | 场景 | 后端 | 前端 |
 |------|------|------|
-| dev  | 固定 3000 | 固定 5173 |
-| prod | 随机 3000-3999(写到 `data/port.txt`) | 由 nginx serve `dist/` |
+| dev  | 固定 3000 | 固定 5172 |
+| prod | 随机 3000-3999(写到 `data/port.txt`) | 由 express.static serve `dist/`(后端自己托管) |
 
 后端被占时自动换下一个,最多 20 次;也可用 `PORT=xxxx npm start` 指定。
 
