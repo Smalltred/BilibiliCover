@@ -278,6 +278,19 @@ async function handleDownload() {
   color: var(--accent);
 }
 
+/* 移动端 (<= 480px):2x2 网格 + 紧凑间距,4 个中文按钮不再被截断 */
+@media (max-width: 480px) {
+  .card-actions {
+    gap: 6px;
+  }
+  .action-btn {
+    /* 每行 2 个:calc(50% - 3px) 算上 6px gap */
+    flex: 1 1 calc(50% - 3px);
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}
+
 .action-primary {
   border-color: var(--accent);
   color: var(--accent);
