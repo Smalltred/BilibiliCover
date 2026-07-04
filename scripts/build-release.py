@@ -3,17 +3,23 @@
 B 站封面提取项目 - 打包脚本(跨平台,纯 Python)
 
 打包产物:releases/<PROJECT_NAME>-v<VERSION>.zip
+    完整包:含 backend + frontend + dist + 部署脚本(整体部署 / 后端改动时用)
+    前端包:releases/<PROJECT_NAME>-frontend-v<VERSION>.zip
+    只含 frontend/dist/ + VERSION(前端热更用,服务器端覆盖 dist/ 不重启)
 
-包含内容:
+包含内容(完整包):
   - backend/(源码 + scripts/,不含 node_modules / data / *.log)
   - frontend/(源码 + scripts/ + dist/ 已构建产物)
   - deploy.sh / start.sh / stop.sh(部署 / 启动 / 停止)
   - VERSION / LICENSE / README.md
 
 参数:
-  --skip-build    跳过前端构建(默认会跑 npm run build)
-  --bump          自动 bump 版本号 patch +1(只改 backend/package.json)
-                  记得手动同步 frontend/package.json 和 VERSION
+  --skip-build      跳过前端构建(默认会跑 npm run build)
+  --bump            自动 bump 版本号 patch +1
+                    完整模式:backend / frontend / 根 package.json + VERSION 全改
+                    frontend-only 模式:只改 frontend/package.json + VERSION
+  --frontend-only   只打前端包(只含 dist/),不包含 backend,zip 名带 -frontend 后缀
+                    配合 update-frontend.sh 实现"前端热更"(无需重启 Node)
 """
 import json
 import os
@@ -35,23 +41,45 @@ def get_version():
     return pkg["version"]
 
 
-def bump_version():
-    """patch +1,同步更新 backend / frontend / 根 package.json + VERSION。
-    三处 package.json + VERSION 共四处一起 bump,避免漏改。"""
-    pkg_path = ROOT / "backend" / "package.json"
-    pkg = json.loads(pkg_path.read_text(encoding="utf-8"))
-    parts = pkg["version"].split(".")
-    parts[-1] = str(int(parts[-1]) + 1)
-    pkg["version"] = ".".join(parts)
-    new_version = pkg["version"]
+def bump_version(target="all"):
+    """patch +1。
 
-    # backend/package.json
-    pkg_path.write_text(
-        json.dumps(pkg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
-    print(f"[bump] backend/package.json -> {new_version}")
+    target='all'(完整包):
+      backend / frontend / 根 package.json + VERSION 共四处一起 bump
+    target='frontend'(只打前端包):
+      只 bump frontend/package.json + VERSION,backend 不动
+      —— 这样后端依赖不会因为前端小改动而触发 npm install
+    """
+    if target == "all":
+        pkg_path = ROOT / "backend" / "package.json"
+        pkg = json.loads(pkg_path.read_text(encoding="utf-8"))
+        parts = pkg["version"].split(".")
+        parts[-1] = str(int(parts[-1]) + 1)
+        new_version = ".".join(parts)
+        pkg["version"] = new_version
+        pkg_path.write_text(
+            json.dumps(pkg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        print(f"[bump] backend/package.json -> {new_version}")
 
-    # frontend/package.json
+        # 根 package.json 也跟着 backend
+        root_pkg_path = ROOT / "package.json"
+        root_pkg = json.loads(root_pkg_path.read_text(encoding="utf-8"))
+        root_pkg["version"] = new_version
+        root_pkg_path.write_text(
+            json.dumps(root_pkg, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        print(f"[bump] package.json -> {new_version}")
+    else:
+        # frontend-only:从 frontend/package.json 读当前版本
+        fe_pkg_path = ROOT / "frontend" / "package.json"
+        fe_pkg = json.loads(fe_pkg_path.read_text(encoding="utf-8"))
+        parts = fe_pkg["version"].split(".")
+        parts[-1] = str(int(parts[-1]) + 1)
+        new_version = ".".join(parts)
+
+    # frontend/package.json + VERSION —— 两种模式都要更新
     fe_pkg_path = ROOT / "frontend" / "package.json"
     fe_pkg = json.loads(fe_pkg_path.read_text(encoding="utf-8"))
     fe_pkg["version"] = new_version
@@ -60,16 +88,6 @@ def bump_version():
     )
     print(f"[bump] frontend/package.json -> {new_version}")
 
-    # 根 package.json
-    root_pkg_path = ROOT / "package.json"
-    root_pkg = json.loads(root_pkg_path.read_text(encoding="utf-8"))
-    root_pkg["version"] = new_version
-    root_pkg_path.write_text(
-        json.dumps(root_pkg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
-    print(f"[bump] package.json -> {new_version}")
-
-    # VERSION(单行文本)
     version_file = ROOT / "VERSION"
     version_file.write_text(new_version + "\n", encoding="utf-8")
     print(f"[bump] VERSION -> {new_version}")
@@ -90,11 +108,33 @@ def build_frontend():
     print("    ✓ dist/ 已生成")
 
 
-def stage(version):
-    print(f"[2/4] 准备 staging(v{version})...")
+def stage(version, mode="full"):
+    """准备 staging 目录。
+
+    mode='full'(默认):完整包,含 backend + frontend + 部署脚本
+    mode='frontend':只装 frontend/dist/ + VERSION(前端热更包)
+    """
+    if mode == "frontend":
+        print(f"[2/4] 准备 frontend-only staging(v{version})...")
+    else:
+        print(f"[2/4] 准备 staging(v{version})...")
+
     if STAGING.exists():
         shutil.rmtree(STAGING)
     STAGING.mkdir(parents=True)
+
+    if mode == "frontend":
+        # 只装 frontend/dist/,以及标记版本
+        fe_dist = ROOT / "frontend" / "dist"
+        if not (fe_dist / "index.html").exists():
+            raise RuntimeError("frontend/dist/index.html 不存在,无法打包")
+        shutil.copytree(fe_dist, STAGING / "frontend" / "dist")
+        # 版本号(用来确认解压出来的是哪个版本)
+        shutil.copy2(ROOT / "VERSION", STAGING / "VERSION")
+        print("    ✓ frontend-only staging 完成(只含 dist/ + VERSION)")
+        return
+
+    # ---- 以下是完整包 ----
 
     # backend:源码 + scripts,排除 node_modules / data / 日志
     shutil.copytree(
@@ -148,10 +188,14 @@ def stage(version):
     print("    ✓ staging 完成")
 
 
-def zip_release(version):
-    print(f"[3/4] 打包 -> releases/{PROJECT_NAME}-v{version}.zip")
+def zip_release(version, mode="full"):
+    if mode == "frontend":
+        suffix = "-frontend"
+    else:
+        suffix = ""
+    print(f"[3/4] 打包 -> releases/{PROJECT_NAME}{suffix}-v{version}.zip")
     RELEASES.mkdir(exist_ok=True)
-    zip_path = RELEASES / f"{PROJECT_NAME}-v{version}.zip"
+    zip_path = RELEASES / f"{PROJECT_NAME}{suffix}-v{version}.zip"
     if zip_path.exists():
         zip_path.unlink()
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
@@ -160,14 +204,19 @@ def zip_release(version):
                 fp = Path(root) / f
                 arcname = fp.relative_to(STAGING).as_posix()
                 z.write(fp, arcname)
-    size_mb = zip_path.stat().st_size / 1024 / 1024
-    print(f"    ✓ {zip_path.name}  ({size_mb:.2f} MB)")
+    size_kb = zip_path.stat().st_size / 1024
+    print(f"    ✓ {zip_path.name}  ({size_kb:.1f} KB)")
 
 
-def cleanup_old(keep=3):
+def cleanup_old(keep=3, mode="full"):
     print(f"[4/4] 清理旧产物(保留最近 {keep} 个)...")
+    pattern = (
+        f"{PROJECT_NAME}-frontend-v*.zip"
+        if mode == "frontend"
+        else f"{PROJECT_NAME}-v*.zip"
+    )
     zips = sorted(
-        RELEASES.glob(f"{PROJECT_NAME}-v*.zip"),
+        RELEASES.glob(pattern),
         key=lambda p: p.stat().st_mtime,
         reverse=True,
     )
@@ -182,12 +231,18 @@ def main():
     args = sys.argv[1:]
     skip_build = "--skip-build" in args
     bump = "--bump" in args
+    frontend_only = "--frontend-only" in args
+    mode = "frontend" if frontend_only else "full"
 
     if bump:
-        version = bump_version()
+        version = bump_version(target="frontend" if frontend_only else "all")
     else:
-        version = get_version()
-        print(f"[info] 当前版本 v{version}(来自 backend/package.json)")
+        # frontend-only 模式从 frontend/package.json 读,完整模式从 backend 读
+        pkg_rel = "frontend" if frontend_only else "backend"
+        pkg_path = ROOT / pkg_rel / "package.json"
+        pkg = json.loads(pkg_path.read_text(encoding="utf-8"))
+        version = pkg["version"]
+        print(f"[info] 当前版本 v{version}(来自 {pkg_rel}/package.json, mode={mode})")
 
     if not skip_build:
         try:
@@ -203,16 +258,21 @@ def main():
             sys.exit(1)
 
     try:
-        stage(version)
-        zip_release(version)
-        cleanup_old()
+        stage(version, mode=mode)
+        zip_release(version, mode=mode)
+        cleanup_old(mode=mode)
     finally:
         # 兜底:即使中途出错,也清理 staging
         if STAGING.exists():
             shutil.rmtree(STAGING)
 
-    print(f"\n[done] 产物:releases/{PROJECT_NAME}-v{version}.zip")
-    print("[next] 上传到服务器,解压后跑 bash deploy.sh")
+    suffix = "-frontend" if frontend_only else ""
+    print(f"\n[done] 产物:releases/{PROJECT_NAME}{suffix}-v{version}.zip")
+    if frontend_only:
+        print("[next] 上传到服务器,跑 bash update-frontend.sh <zip>")
+        print("       会覆盖 frontend/dist/,无需重启 Node,刷新浏览器即可")
+    else:
+        print("[next] 上传到服务器,解压后跑 bash deploy.sh")
 
 
 if __name__ == "__main__":
