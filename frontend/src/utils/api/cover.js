@@ -24,10 +24,11 @@ import { API_BASE } from '@/utils/constants.js'
 
 /**
  * @typedef {Object} CoverData
+ * @property {string}  id           跨类型规范 ID:BV/AV → 'BV1xx'|'av12345',EP/SS/MD → 'ep12345'|'ss12345'|'md12345'
  * @property {string}  title
  * @property {string}  cover
- * @property {string}  [bvid]
- * @property {string}  [avid]
+ * @property {string}  [bvid]       仅 BV/AV 视频有值
+ * @property {string}  [avid]       仅 AV 视频有值('av12345' 形式)
  * @property {string}  [author]
  * @property {number|null} [play]
  * @property {number}  [duration]   秒
@@ -73,6 +74,9 @@ function mapCoverData(payload) {
   const owner = d.owner || null
 
   return {
+    // 跨类型规范 ID:BV/AV → 'BV1xx'/'av12345',EP/SS/MD → 'ep12345'/'ss12345'/'md12345'
+    // 下游(下载文件名等)优先用这个字段,不再依赖 bvid/avid
+    id: d.id || '',
     title: d.title || '',
     cover: d.cover || '',
     bvid: isBangumi ? '' : d.id || '',

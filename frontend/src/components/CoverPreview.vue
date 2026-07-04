@@ -3,15 +3,12 @@
   - 全屏遮罩 + 居中卡片
   - 点击遮罩关闭(背景层用 .self 修饰符,卡片内部点击不触发)
   - ESC 键关闭
-  - 右上角 × 关闭按钮
   - 用 <Teleport to="body"> 渲染到 body,避免被父级 overflow/z-index 影响
 -->
 <template>
   <Teleport to="body">
     <div class="modal-mask" @click.self="$emit('reset')">
       <div class="modal-card" role="dialog" aria-modal="true">
-        <button class="modal-close" @click="$emit('reset')" aria-label="关闭">×</button>
-
         <CoverPreviewCard v-if="data" :data="data" @reset="$emit('reset')" />
         <StateCenter v-else-if="error" variant="error" :error="error" @reset="$emit('reset')" />
       </div>
@@ -65,33 +62,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
   padding: 24px;
   box-shadow: var(--shadow);
   animation: pop-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.modal-close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 2;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background: var(--bg-elevated);
-  color: var(--text-secondary);
-  font-size: 22px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-  transition: all var(--transition);
-}
-
-.modal-close:hover {
-  background: var(--accent);
-  color: white;
-  transform: rotate(90deg);
 }
 
 @keyframes fade-in {

@@ -84,6 +84,7 @@ router.get('/download', async (req, res) => {
   }
 
   // 白名单:只允许 B 站域名(防滥用)
+  // 允许 bilibili.com / hdslb.com / *.bilibili.com / *.hdslb.com
   let parsedUrl;
   try {
     parsedUrl = new URL(url);
@@ -113,16 +114,43 @@ router.get('/download', async (req, res) => {
 
     const contentType = upstream.headers.get('content-type') || 'image/jpeg';
     res.set('Content-Type', contentType);
-    res.set('Content-Disposition', `attachment; filename="${filename}"`);
+    // HTTP header 只允许 ASCII,中文/特殊字符走 RFC 5987
+    // 现代浏览器读 filename*=UTF-8''xxx,老 IE 读 ASCII 兜底
+    res.set('Content-Disposition', buildContentDisposition(filename));
     const contentLength = upstream.headers.get('content-length');
     if (contentLength) res.set('Content-Length', contentLength);
 
-    // 流式转发(避免大图占内存)
+    // 流式转发(避免大图占内存)+ 监听流错误
     const { Readable } = require('stream');
-    Readable.fromWeb(upstream.body).pipe(res);
+    const nodeStream = Readable.fromWeb(upstream.body);
+    nodeStream.on('error', (err) => {
+      console.error('[download] upstream stream error:', err.message);
+      // header 已发,只能断流;浏览器会自动处理半截响应
+      res.destroy(err);
+    });
+    res.on('close', () => nodeStream.destroy());
+    nodeStream.pipe(res);
   } catch (e) {
+    console.error('[download] error:', e.message);
     res.status(500).json({ ok: false, error: `下载失败: ${e.message}` });
   }
 });
+
+/**
+ * 构造 Content-Disposition 头。
+ * HTTP header 只允许 ASCII,中文/特殊字符必须按 RFC 5987 用 UTF-8 + percent-encoding。
+ * 同时给个 ASCII 兜底 filename(把非法字符替成 _),照顾老 IE/部分下载管理器。
+ */
+function buildContentDisposition(filename) {
+  const safe = (filename || 'cover.jpg').toString();
+  // 兜底:去掉控制字符、引号、反斜杠,非 ASCII 替成 _(兼容老客户端)
+  const asciiFallback = safe
+    .replace(/[\x00-\x1F\x7F"\\]/g, '_')
+    .replace(/[^\x20-\x7E]/g, '_');
+  // RFC 5987:UTF-8 percent-encode 后用 filename*=UTF-8''... 给出真实名字
+  const utf8Encoded = encodeURIComponent(safe)
+    .replace(/['()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+  return `attachment; filename="${asciiFallback}"; filename*=UTF-8''${utf8Encoded}`;
+}
 
 module.exports = router;

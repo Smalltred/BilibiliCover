@@ -7,7 +7,7 @@ import vue from '@vitejs/plugin-vue'
 // - 生产阶段用 nginx 反向代理或后端托管前端 dist/
 //
 // 端口约定:
-//   - 前端 Vite:  5173
+//   - 前端 Vite:  5172
 //   - 后端 dev:   3000(固定,方便代理对接)
 //   - 后端 prod:  随机端口(通过 npm run start:prod 启动)
 //
@@ -26,7 +26,7 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 5173,
+    port: 5172,
     open: false,
     strictPort: false,
     proxy: {

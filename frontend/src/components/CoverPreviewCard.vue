@@ -82,8 +82,23 @@ const props = defineProps({
 defineEmits(['reset'])
 
 const filename = computed(() => {
-  const id = props.data?.bvid || props.data?.avid || 'cover'
-  return `${id}.jpg`
+  const title = (props.data?.title || 'cover')
+    // 去掉文件系统不允许的字符
+    .replace(/[\\/:*?"<>|\r\n]/g, '_')
+    // 截断过长的标题(保留前 50 字)
+    .slice(0, 50)
+  const id = props.data?.id || props.data?.bvid || props.data?.avid || 'unknown'
+  // YYYYMMDD_HHMMSS —— 精确到秒,避免一秒内多次下载覆盖
+  const d = new Date()
+  const ts =
+    d.getFullYear().toString() +
+    String(d.getMonth() + 1).padStart(2, '0') +
+    String(d.getDate()).padStart(2, '0') +
+    '_' +
+    String(d.getHours()).padStart(2, '0') +
+    String(d.getMinutes()).padStart(2, '0') +
+    String(d.getSeconds()).padStart(2, '0')
+  return `${title}-${id}-${ts}.jpg`
 })
 
 const { copy } = useClipboard()
