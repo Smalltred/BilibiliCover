@@ -1,7 +1,7 @@
 {
   "name": "bilibili-cover-frontend",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "B 站视频封面提取前端(Vue 3 + Vite)",
   "scripts": {

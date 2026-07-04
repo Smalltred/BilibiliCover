@@ -36,18 +36,45 @@ def get_version():
 
 
 def bump_version():
-    """patch +1,只改 backend/package.json。提示用户同步 frontend + VERSION。"""
+    """patch +1,同步更新 backend / frontend / 根 package.json + VERSION。
+    三处 package.json + VERSION 共四处一起 bump,避免漏改。"""
     pkg_path = ROOT / "backend" / "package.json"
     pkg = json.loads(pkg_path.read_text(encoding="utf-8"))
     parts = pkg["version"].split(".")
     parts[-1] = str(int(parts[-1]) + 1)
     pkg["version"] = ".".join(parts)
+    new_version = pkg["version"]
+
+    # backend/package.json
     pkg_path.write_text(
         json.dumps(pkg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
-    print(f"[bump] backend/package.json -> {pkg['version']}")
-    print(f"[!] 记得手动同步 frontend/package.json 和 VERSION 改成 {pkg['version']}")
-    return pkg["version"]
+    print(f"[bump] backend/package.json -> {new_version}")
+
+    # frontend/package.json
+    fe_pkg_path = ROOT / "frontend" / "package.json"
+    fe_pkg = json.loads(fe_pkg_path.read_text(encoding="utf-8"))
+    fe_pkg["version"] = new_version
+    fe_pkg_path.write_text(
+        json.dumps(fe_pkg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    print(f"[bump] frontend/package.json -> {new_version}")
+
+    # 根 package.json
+    root_pkg_path = ROOT / "package.json"
+    root_pkg = json.loads(root_pkg_path.read_text(encoding="utf-8"))
+    root_pkg["version"] = new_version
+    root_pkg_path.write_text(
+        json.dumps(root_pkg, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    print(f"[bump] package.json -> {new_version}")
+
+    # VERSION(单行文本)
+    version_file = ROOT / "VERSION"
+    version_file.write_text(new_version + "\n", encoding="utf-8")
+    print(f"[bump] VERSION -> {new_version}")
+
+    return new_version
 
 
 def build_frontend():
@@ -102,8 +129,18 @@ def stage(version):
         else:
             shutil.copy2(src, fe / item)
 
-    # 顶层脚本 + 文档
-    for f in ("deploy.sh", "start.sh", "stop.sh", "VERSION", "LICENSE", "README.md"):
+    # 顶层脚本 + 文档 + 宝塔入口
+    for f in (
+        "deploy.sh",
+        "start.sh",
+        "stop.sh",
+        "server.js",
+        "package.json",
+        "package-lock.json",
+        "VERSION",
+        "LICENSE",
+        "README.md",
+    ):
         src = ROOT / f
         if src.exists():
             shutil.copy2(src, STAGING / f)
