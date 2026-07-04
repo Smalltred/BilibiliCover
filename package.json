@@ -1,6 +1,6 @@
 {
   "name": "blibilicover",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "description": "B 站视频/番剧封面提取(Node.js + Express + Vue 3)",
   "type": "commonjs",

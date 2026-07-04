@@ -113,4 +113,23 @@ defineEmits(['navigate'])
   background: rgba(251, 114, 153, 0.1);
   border-color: var(--accent);
 }
+
+/* 移动端 (<= 480px):挤不下 "Bilibili Cover" 文字 + 两个 4-6 字按钮。
+   隐藏品牌文字(留 logo),按钮 padding/字号收紧,nav-inner 横向 padding 减小。 */
+@media (max-width: 480px) {
+  .nav-inner {
+    padding: 0 12px;
+    height: 52px;
+  }
+  .brand-text {
+    display: none;
+  }
+  .nav-actions {
+    gap: 4px;
+  }
+  .nav-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}
 </style>

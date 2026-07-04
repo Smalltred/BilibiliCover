@@ -1,6 +1,6 @@
 {
   "name": "bilibili-cover-backend",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "B 站视频/番剧封面解析 API - Node.js 版",
   "private": true,
   "main": "src/app.js",
